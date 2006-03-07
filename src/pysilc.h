@@ -5,8 +5,9 @@
 #include "structmember.h"
 
 #include "pysilc_macros.h"
-#include "silcincludes.h"
-#include "silcclient.h"
+#include <silcincludes.h>
+#include <silcclient.h>
+#include <silctypes.h>
 
 typedef struct {
     PyObject_HEAD

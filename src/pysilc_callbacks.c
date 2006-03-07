@@ -303,9 +303,9 @@ static void _pysilc_client_callback_notify(SilcClient client,
         
     case SILC_NOTIFY_TYPE_INVITE:
         PYSILC_GET_CALLBACK_OR_BREAK("notify_invite");
-        PYSILC_NEW_CHANNEL_OR_BREAK(va_arg(va, SilCChannelEntry), pychannel);
+        PYSILC_NEW_CHANNEL_OR_BREAK(va_arg(va, SilcChannelEntry), pychannel);
         char *channel_name = va_arg(va, char *);
-        PYSILC_NEW_USER_OR_BREAK(va_arg(va, SilcChannelEntry), pyuser);
+        PYSILC_NEW_USER_OR_BREAK(va_arg(va, SilcClientEntry), pyuser);
         if ((args = Py_BuildValue("(OsO)", pychannel, channel_name, pyuser)) == NULL)
             break;
         if ((result = PyObject_CallObject(callback, args)) == 0)
@@ -609,16 +609,23 @@ static void _pysilc_client_callback_command_reply(SilcClient client,
         break;
     }
     case SILC_COMMAND_INVITE:
+        /* TODO: extracting from payload is weird
+
         PYSILC_GET_CALLBACK_OR_BREAK("command_reply_invite");
         PYSILC_NEW_CHANNEL_OR_BREAK(va_arg(va, SilcChannelEntry), pychannel);
 
         // get invite list
         SilcBuffer invitelist = va_arg(va, SilcBuffer);
-        int invite_count = SILC_GET_MSB16(invitelist);
-        SilcArgumentPayload invites = silc_argument_payload_parse(invitelist.len, invitelist.data, invite_count);
-        pyargs = PyTuple_New(invite_count);
-        char *invitee; int len, i = 0;
-        while (invitee = silc_argument_get_next_arg(invites, &len)) {
+        int invite_count;
+        SILC_GET16_MSB(invite_count, invitelist);
+        SilcArgumentPayload invites = silc_argument_payload_parse(invitelist->data, 
+                                                                  invitelist->len, 
+                                                                  invite_count);
+        PyObject *pyargs = PyTuple_New(invite_count);
+        char *invitee; 
+        int i = 0;
+        SilcUInt32 len, silctype;
+        while (invitee = silc_argument_get_next_arg(invites, &silctype, &len)) {
             PyTuple_SetItem(pyargs, i, PyString_FromString(invitee));
             i++;
         }
@@ -628,6 +635,7 @@ static void _pysilc_client_callback_command_reply(SilcClient client,
             break;
         if ((result = PyObject_CallObject(callback, args)) == 0)
             PyErr_Print();
+        */
         break;
 
     case SILC_COMMAND_KILL:
