@@ -165,17 +165,18 @@ static PyObject *pysilc_client_user(PyObject *self)
 static PyObject *pysilc_client_send_channel_message(PyObject *self, PyObject *args, PyObject *kwds)
 {
     PySilcChannel *channel;
-    char *message;
-    int length;
-    int result;
+    char *message = NULL;
+    int length = 0;
+    int result = 0;
     PyObject *private_key = NULL; // TODO: ignored at the moment
+    unsigned int defaultFlags = SILC_MESSAGE_FLAG_UTF8;
     unsigned int flags = 0;
     bool force_send = 1;
     PySilcClient *pyclient = (PySilcClient *)self;    
 
     static char *kwlist[] = {"channel", "msg", "private_key", "flags", "force_send", NULL};
     
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Os#|OIb", kwlist, &channel, &message, &length, &private_key, &flags, &force_send))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Oes#|OIb", kwlist, &channel, "utf-8", &message, &length, &private_key, &flags, &force_send))
         return NULL;
         
     if (!PyObject_IsInstance((PyObject *)channel, (PyObject *)&PySilcChannel_Type))
@@ -186,7 +187,13 @@ static PyObject *pysilc_client_send_channel_message(PyObject *self, PyObject *ar
         return NULL;
      }
         
-    result = silc_client_send_channel_message(pyclient->silcobj, pyclient->silcconn, channel->silcobj, NULL, flags, message, length, force_send);
+    result = silc_client_send_channel_message(pyclient->silcobj, 
+                                              pyclient->silcconn, 
+                                              channel->silcobj, 
+                                              NULL,
+                                              flags | defaultFlags,
+                                              message, length, 
+                                              force_send);
     
     return PyInt_FromLong(result);
 }
@@ -195,9 +202,10 @@ static PyObject *pysilc_client_send_channel_message(PyObject *self, PyObject *ar
 static PyObject *pysilc_client_send_private_message(PyObject *self, PyObject *args, PyObject *kwds)
 {
     PySilcUser *user;
-    char *message;
-    int length;
-    int result;
+    char *message = NULL;
+    int length = 0;
+    int result = 0;
+    unsigned int defaultFlags = SILC_MESSAGE_FLAG_UTF8;
     unsigned int flags = 0;
     bool force_send = 1;
     PySilcClient *pyclient = (PySilcClient *)self;    
@@ -205,7 +213,7 @@ static PyObject *pysilc_client_send_private_message(PyObject *self, PyObject *ar
     
     static char *kwlist[] = {"user", "message", "flags", "force_send", NULL};
     
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Os#|Ib", kwlist, &user, &message, &length, &flags, &force_send))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Oes#|Ib", kwlist, &user, "utf-8", &message, &length, &flags, &force_send))
         return NULL;
         
     if (!PyObject_IsInstance((PyObject *)user, (PyObject *)&PySilcUser_Type))
@@ -216,7 +224,13 @@ static PyObject *pysilc_client_send_private_message(PyObject *self, PyObject *ar
         return NULL;
      }
         
-    result = silc_client_send_private_message(pyclient->silcobj, pyclient->silcconn, user->silcobj, flags, message, length, force_send);
+    result = silc_client_send_private_message(pyclient->silcobj, 
+                                              pyclient->silcconn, 
+                                              user->silcobj, 
+                                              flags,
+                                              message, 
+                                              length, 
+                                              force_send);
     
     return PyInt_FromLong(result);
 }
