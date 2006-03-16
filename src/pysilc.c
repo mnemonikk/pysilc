@@ -227,7 +227,7 @@ static PyObject *pysilc_client_send_private_message(PyObject *self, PyObject *ar
     result = silc_client_send_private_message(pyclient->silcobj, 
                                               pyclient->silcconn, 
                                               user->silcobj, 
-                                              flags,
+                                              flags | defaultFlags,
                                               message, 
                                               length, 
                                               force_send);
