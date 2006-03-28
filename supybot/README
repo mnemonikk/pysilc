@@ -1,0 +1,39 @@
+Usage
+-----
+
+1. Apply the simple patch against the source tree so that supybot will
+   accept the Silc driver.
+
+2. Put Silc.py into the drivers directory in
+   Supybot-0.83.1/src/drivers.
+
+3. Install as normal
+
+Configuration
+-------------
+
+1. For the server, add the name of the server plus the port number,
+   eg:
+
+supybot.networks.silcnetworkname.server: silc.example.org:706
+
+2. Note that internally, because supybot assumes all channels have a
+   prefix # or !, we have to add a # in front of the name. So if you
+   meant to refer to silc channel, "talk", then use the channel name
+   "#talk". If you want to refer to the silc channel "#chat", then use
+   "##chat". For example:
+
+supybot.networks.silcnetworkname.channels: ##bot
+
+3. Set the default driver to silc:
+
+supybot.drivers.module: Silc
+
+
+Author
+------
+
+Alastair Tse <alastair@liquidx.net>
+
+That's it.
+

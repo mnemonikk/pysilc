@@ -116,9 +116,9 @@ class SupySilcClient(silc.SilcClient):
         if ircmsg: self.irc.feedMsg(ircmsg)
                                   
         
-    def notify_signoff(self, user):
+    def notify_signoff(self, user, msg):
         self._cache_user(user)
-        drivers.log.info('SILC: Notify (Signoff): %s', user)
+        drivers.log.info('SILC: Notify (Signoff): %s: %s', user, msg)
 
         ircemu = ':%s!n=%s@%s QUIT :' % (leaver.nickname, leaver.username,
                                            leaver.hostname)

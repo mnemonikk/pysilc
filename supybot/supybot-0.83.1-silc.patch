@@ -1,0 +1,12 @@
+diff -ur Supybot-0.83.1/src/conf.py Supybot-0.83.1silc/src/conf.py
+--- Supybot-0.83.1/src/conf.py	2005-09-02 03:20:53.000000000 +0100
++++ Supybot-0.83.1silc/src/conf.py	2006-02-07 19:23:44.300058000 +0000
+@@ -665,7 +665,7 @@
+     driver should block waiting for input."""))
+ 
+ class ValidDriverModule(registry.OnlySomeStrings):
+-    validStrings = ('default', 'Socket', 'Twisted')
++    validStrings = ('default', 'Socket', 'Twisted', 'Silc')
+ 
+ registerGlobalValue(supybot.drivers, 'module',
+     ValidDriverModule('default', """Determines what driver module the bot will
