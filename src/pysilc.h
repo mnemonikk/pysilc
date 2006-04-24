@@ -4,6 +4,10 @@
 #include <Python.h>
 #include "structmember.h"
 
+#ifndef Py_RETURN_NONE
+#define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
+#endif
+
 #include "pysilc_macros.h"
 #include <silcincludes.h>
 #include <silcclient.h>
