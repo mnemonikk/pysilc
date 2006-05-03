@@ -2,6 +2,7 @@ import time
 import os
 import socket
 import re
+import types
 
 import supybot.log as log
 import supybot.conf as conf
@@ -363,13 +364,16 @@ class SilcDriver(drivers.IrcDriver, drivers.ServersMixin):
                     drivers.log.info('!! MSG UNKNOWN: %s', msg.command)
                 
     def do_PRIVMSG(self, msg):
+	umsg = msg.args[1]
+	if type(msg.args[1]) != types.UnicodeType:
+	    umsg = msg.args[1].decode('utf-8','replace')
+	
         if msg.args[0][0] == '#':
             chan = self.silc.channels[msg.args[0][1:]]
-            self.silc.send_channel_message(chan, msg.args[1])
+            self.silc.send_channel_message(chan, umsg)
         else:
             user = self.silc.users[msg.args[0]]
-            self.silc.send_private_message(user, msg.args[1])
-
+            self.silc.send_private_message(user, umsg)
 
     def do_JOIN(self, msg):
         self.silc.command_call('JOIN %s' % msg.args[0][1:])
