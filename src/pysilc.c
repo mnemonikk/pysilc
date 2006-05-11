@@ -287,10 +287,10 @@ static PyObject *pysilc_client_set_away_message(PyObject *self, PyObject *args)
 
 static PyObject *pysilc_create_key_pair(PyObject *mod, PyObject *args, PyObject *kwds)
 {
-
+	PyObject *passphrase_obj = Py_None;
     char *pkcs_name = NULL;
     char *pub_filename , *prv_filename;
-    char *passphrase = "";
+    char *passphrase = NULL;
     char *pub_identifier = NULL;
     
     SilcUInt32      key_length = 2048;
@@ -300,11 +300,22 @@ static PyObject *pysilc_create_key_pair(PyObject *mod, PyObject *args, PyObject 
     
     static char *kwlist[] = {"public_filename", "private_filename", "identifier", "passphrase", "pkcs_name", "key_length", NULL};
     
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "ss|sssi", kwlist, 
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "ss|sOsi", kwlist,
             &pub_filename, &prv_filename, &pub_identifier,
-            &passphrase, &pkcs_name, &key_length))
+			&passphrase_obj, &pkcs_name, &key_length))
         return NULL;
     
+	if (passphrase_obj == Py_None) {
+		passphrase = NULL;
+	}
+	else if (PyString_Check(passphrase_obj)) {
+		passphrase = PyString_AsString(passphrase_obj);
+	}
+	else {
+		PyErr_SetString(PyExc_TypeError, "passphrase should either be None or String Type");
+		return NULL;
+	}	
+	
     bool result = silc_create_key_pair(pkcs_name, key_length, pub_filename, 
                                        prv_filename, pub_identifier, passphrase,
                                        &pkcs, &public_key, &private_key, 0);
@@ -318,25 +329,39 @@ static PyObject *pysilc_create_key_pair(PyObject *mod, PyObject *args, PyObject 
 
 static PyObject *pysilc_load_key_pair(PyObject *mod, PyObject *args, PyObject *kwds)
 {
-
+	PyObject *passphrase_obj = Py_None;
+	char *passphrase = NULL;
     char *pub_filename , *prv_filename;
-    char *passphrase = "";
-    
+	
     SilcPKCS        pkcs;
     SilcPublicKey   public_key;
     SilcPrivateKey  private_key;
     
     static char *kwlist[] = {"public_filename", "private_filename", "passphrase", NULL};
     
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "ss|s", kwlist, 
-            &pub_filename, &prv_filename, &passphrase))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "ss|O", kwlist,
+            &pub_filename, &prv_filename, &passphrase_obj))
         return NULL;
-    
-    bool result = silc_load_key_pair(pub_filename, prv_filename, passphrase,
-                                    &pkcs, &public_key, &private_key);
+	
+	if (passphrase_obj == Py_None) {
+		passphrase = NULL;
+	}
+	else if (PyString_Check(passphrase_obj)) {
+		passphrase = PyString_AsString(passphrase_obj);
+	}
+	else {
+		PyErr_SetString(PyExc_TypeError, "passphrase should either be None or String Type");
+		return NULL;
+	}
+
+	// Use the passphrase passed.
+    bool result = silc_load_key_pair(pub_filename, prv_filename, 
+									 passphrase,
+									 &pkcs, &public_key, &private_key);
+	
     if (!result) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to load keys.");
-        return NULL;
+		PyErr_SetString(PyExc_RuntimeError, "Unable to load keys.");
+		return NULL;
     }
         
     return PySilcKeys_New(pkcs, public_key, private_key);

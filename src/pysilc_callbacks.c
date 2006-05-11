@@ -937,8 +937,28 @@ static void _pysilc_client_callback_ask_passphrase(SilcClient client,
                                                    SilcAskPassphrase completion, 
                                                    void *context)
 {
-    // TODO :implement me
-    completion("", 0, context);
+    PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
+    PyObject *callback = NULL, *result = NULL;
+    char *passphrase;
+	int length;
+
+    callback = PyObject_GetAttrString((PyObject *)pyclient, "ask_passphrase");
+	
+    if (!PyCallable_Check(callback))
+        goto cleanup;
+	
+    if ((result = PyObject_CallObject(callback, NULL)) == 0)
+        PyErr_Print();
+
+	int success = PyString_AsStringAndSize(result, &passphrase, &length);
+	if (success < 0)
+		goto cleanup;
+	
+	completion((unsigned char *)passphrase, length, context);
+
+cleanup:
+    Py_XDECREF(callback);
+    Py_XDECREF(result);
 }
 
 static void _pysilc_client_callback_detach(SilcClient client, 
