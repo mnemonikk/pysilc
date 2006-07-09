@@ -1,0 +1,113 @@
+PySilc - Python Bindings for SILC Toolkit
+=========================================
+
+PySilc is a near-complete set of Python bindings for creating SILC
+clients using the silc-toolkit[1]. It allows developers to write
+simple bots and clients for connecting to SILC servers.
+
+Also included is a simple test client bot in 'tests/demo.py' and a
+experimental SILC driver for Supybot[2].
+
+Building and Installing
+-----------------------
+
+* python setup.py build
+* python setup.py install (as root)
+
+Authors and License
+-------------------
+
+Copyright (c) 2006. Alastair Tse <alastair@liquidx.net>
+Licensed under the BSD License. See COPYING for details.
+
+Usage Overview
+--------------
+
+All the classes are documented using Python Docstrings. You can see
+descriptions of classes and modules by simply using pydoc or help()
+in the python console.
+
+All the functionality is contained within the module 'silc'.
+
+The main classes are as follows:
+
+SilcClient  - This is the main class that represents a SILC client. You
+              must subclass SilcClient and override some key callback
+              methods.
+
+SilcKeys    - Represents a pair of public and private keys that
+              can be generated using 'silc.load_key_pair()' and
+              'silc.create_key_pair()'.
+
+SilcUser    - Represents a user on a SILC server. You will not create
+              these automatically but will be able to access them by
+              listing users in a channel or when they send a channel
+              message or private message. Also, you can get a reference
+              to your own SilcUser object by using SilcClient.user()
+
+SilcChannel - Represents a channel on the SILC server.
+
+Callbacks Overview
+------------------
+
+The majority of the work will be to write callbacks that react to
+messages the server sends to the client. These can be either
+asynchronous events such as channel messages, or responses to commands
+that are sent by the client. 
+
+Callbacks are callable members of the SilcClient class (or subclass)
+and their signature is on the SilcClient docstring. An example
+implementation would look like this:
+
+{{{
+
+import silc
+
+class EchoClient(silc.SilcClient):
+
+      def channel_message(self, sender, channel, flags, message):
+          print message
+          self.send_channel_message(channel, message)
+
+      def private_message(self, sender, flags, message):
+          print message
+          self.send_private_message(sender, message)
+
+      def connected(self):
+          print "* Connected"
+          self.command_call("JOIN crazybotchannel")
+
+      def disconnected(self):
+          print "* Disconnected"
+
+      # catch responses to commands
+
+      def command_reply_join(self, channel, name, topic, hmac, x, y,
+          users):
+
+          print "* Joined channel %s" % name
+          self.send_channel_message(channel, "Hello!")
+           
+      # catch async notifications from the server
+
+      def notify_join(self, user, channel):
+          print "* A user named %s has joined the channel %s" % \
+                (user.username, channel.name)
+          self.send_channel_message(channel, "Hello, %s" %
+          user.username)
+
+if __name__ == "__main__":
+   keys = silc.create_key_pair("silc.pub", "silc.prv", "")
+   client = EchoClient(keys, "echobot", "echobot", "Echo Bot")
+   client.connect_to_server("silc.example.com")
+
+   try:
+      while True:
+          client.run_one()
+   except KeyboardInterrupt:
+      pass
+   
+}}}
+
+
+
