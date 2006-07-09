@@ -8,7 +8,8 @@ ext_modules = [
               depends = ['src/pysilc_callbacks.c',
                          'src/pysilc_channel.c',
                          'src/pysilc_user.c',
-                         'src/pysilc_macros.h']),
+                         'src/pysilc_macros.h',
+                         'src/pysilc.h']),
 ]
 
 setup(name = 'silc',

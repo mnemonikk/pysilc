@@ -1,3 +1,16 @@
+/*
+ *
+ * PySilc - Python SILC Toolkit Bindings
+ *
+ * Copyright (c) 2006, Alastair Tse <alastair@liquidx.net>
+ * All rights reserved.
+ *
+ * This program is free software; you can redistributed it and/or modify 
+ * it under the terms of the BSD License. See LICENSE in the distribution
+ * for details or http://www.liquidx.net/pysilc/.
+ *
+ */
+
 #include "pysilc.h"
 
 static PyObject *PySilcChannel_New(SilcChannelEntry channel)

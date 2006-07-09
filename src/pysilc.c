@@ -1,3 +1,16 @@
+/*
+ *
+ * PySilc - Python SILC Toolkit Bindings
+ *
+ * Copyright (c) 2006, Alastair Tse <alastair@liquidx.net>
+ * All rights reserved.
+ *
+ * This program is free software; you can redistributed it and/or modify 
+ * it under the terms of the BSD License. See LICENSE in the distribution
+ * for details or http://www.liquidx.net/pysilc/.
+ *
+ */
+
 #include "pysilc.h"
 
 #include "pysilc_channel.c"
@@ -5,7 +18,7 @@
 #include "pysilc_callbacks.c"
 
 void initsilc() {    
-    PyObject *mod = Py_InitModule("silc", pysilc_functions);
+    PyObject *mod = Py_InitModule3("silc", pysilc_functions, pysilc_doc);
     silc_pkcs_register_default();
     silc_hash_register_default();
     silc_cipher_register_default();
@@ -258,7 +271,7 @@ static PyObject *pysilc_client_set_away_message(PyObject *self, PyObject *args)
 {
     char *message;
     int length;
-    PyObject *temp;
+    PyObject *temp = NULL;
     PySilcClient *pyclient = (PySilcClient *)self;    
     
     if (!pyclient || !pyclient->silcobj) {
@@ -266,10 +279,10 @@ static PyObject *pysilc_client_set_away_message(PyObject *self, PyObject *args)
        return NULL;
     }
     
-    if (!PyArg_ParseTuple(args, "O", &temp))
+    if (!PyArg_ParseTuple(args, "|O", &temp))
         return NULL;
         
-    if (temp == Py_None) {
+    if ((temp == Py_None) || (temp == NULL)) {
         silc_client_set_away_message(pyclient->silcobj, pyclient->silcconn, NULL);    
         Py_RETURN_NONE;
     }
