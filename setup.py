@@ -20,7 +20,7 @@ ext_modules = [
                          'src/pysilc.h']),
 ]
 
-setup(name = 'silc',
+setup(name = 'pysilc',
       version = '0.4',
       description = 'Python Binding for SILC Toolkit',
       author = 'Alastair Tse',
