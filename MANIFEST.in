@@ -1,0 +1,3 @@
+recursive-include src
+include setup.py README COPYING MANIFEST.in
+include examples/demo.py examples/echo.py
