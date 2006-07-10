@@ -92,20 +92,21 @@ class EchoClient(silc.SilcClient):
 
       def notify_join(self, user, channel):
           print "* A user named %s has joined the channel %s" % \
-                (user.username, channel.name)
+                (user.username, channel.channel_name)
           self.send_channel_message(channel, "Hello, %s" %
           user.username)
 
 if __name__ == "__main__":
-   keys = silc.create_key_pair("silc.pub", "silc.prv", "")
+   keys = silc.create_key_pair("silc.pub", "silc.prv")
    client = EchoClient(keys, "echobot", "echobot", "Echo Bot")
    client.connect_to_server("silc.example.com")
 
-   try:
-      while True:
-          client.run_one()
-   except KeyboardInterrupt:
-      pass
+   while True:
+         try:
+              time.sleep(0.1)
+              client.run_one()
+         except KeyboardInterrupt:
+              break
    
 }}}
 
