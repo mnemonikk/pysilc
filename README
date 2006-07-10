@@ -5,7 +5,7 @@ PySilc is a near-complete set of Python bindings for creating SILC
 clients using the silc-toolkit[1]. It allows developers to write
 simple bots and clients for connecting to SILC servers.
 
-Also included is a simple test client bot in 'tests/demo.py' and a
+Also included is a simple test client bot in 'examples/echo.py' and a
 experimental SILC driver for Supybot[2].
 
 Building and Installing
