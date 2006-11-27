@@ -300,6 +300,10 @@ static void _pysilc_client_callback_notify(SilcClient client,
 
     PyObject *args = NULL, *result = NULL, *pyuser = NULL, *pychannel = NULL;
     PyObject *callback = NULL, *pyarg = NULL;
+    SilcIdType idtype;
+    SilcUInt32 mode;
+    void *entry = NULL;
+    char *topic = NULL;
 
     PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
     va_list va;
@@ -357,9 +361,9 @@ static void _pysilc_client_callback_notify(SilcClient client,
         break;
     case SILC_NOTIFY_TYPE_TOPIC_SET:
         PYSILC_GET_CALLBACK_OR_BREAK("notify_topic_set");
-        SilcIdType idtype = va_arg(va, SilcIdType);
-        void *entry = va_arg(va, void *);
-        char *topic = va_arg(va, char *);
+        idtype = va_arg(va, int);
+        entry = va_arg(va, void *);
+        topic = va_arg(va, char *);
         PYSILC_NEW_CHANNEL_OR_BREAK(va_arg(va, SilcChannelEntry), pychannel);
 
         switch (idtype) {
@@ -371,7 +375,7 @@ static void _pysilc_client_callback_notify(SilcClient client,
                 break;
             case SILC_ID_SERVER:
                 pyarg = Py_None;
-                PY_INCREF(pyarg); // TODO: no server type
+                Py_INCREF(pyarg); // TODO: no server type
                 break;
         }
         
@@ -399,9 +403,9 @@ static void _pysilc_client_callback_notify(SilcClient client,
 
     case SILC_NOTIFY_TYPE_CMODE_CHANGE:
         PYSILC_GET_CALLBACK_OR_BREAK("notify_cmode_change");
-        SilcIdType idtype = va_arg(va, SilcIdType);
-        void *entry = va_arg(va, void *);
-        SilcUInt32 mode = va_arg(va, SilcUInt32);
+        idtype = va_arg(va, int);
+        entry = va_arg(va, void *);
+        mode = va_arg(va, SilcUInt32);
         char *cipher_name = va_arg(va, char *);
         char *hmac_name = va_arg(va, char *);
         char *passphrase = va_arg(va, char *);
@@ -432,8 +436,8 @@ static void _pysilc_client_callback_notify(SilcClient client,
             Py_None,
             Py_None,
             pychannel);
-            
-        if (args == NULL) 
+
+        if (args == NULL)
             break;
             
         if ((result = PyObject_CallObject(callback, args)) == 0)
@@ -442,36 +446,36 @@ static void _pysilc_client_callback_notify(SilcClient client,
 
     case SILC_NOTIFY_TYPE_CUMODE_CHANGE:
         PYSILC_GET_CALLBACK_OR_BREAK("notify_cumode_change");
-         SilcIdType idtype = va_arg(va, SilcIdType);
-         void *entry = va_arg(va, void *);
-         SilcUInt32 mode = va_arg(va, SilcUInt32);
-         PYSILC_NEW_CHANNEL_OR_BREAK(va_arg(va, SilcChannelEntry), pychannel);
-         PYSILC_NEW_USER_OR_BREAK(va_arg(va, SilcClientEntry), pyuser);
-         switch (idtype) { 
-             case SILC_ID_CLIENT:
-                 PYSILC_NEW_USER_OR_BREAK(entry, pyarg);
-                 break;
-            case SILC_ID_CHANNEL:
-                PYSILC_NEW_CHANNEL_OR_BREAK(entry, pyarg);
-                break;
-            case SILC_ID_SERVER:
-                pyarg = Py_None; // TODO: no server objects
-                PY_INCREF(Py_None);
-                break;
-         }
-         
-         args = Py_BuildValue("(iOiOO)",
-             idtype,
-             pyarg,
-             mode,
-             pychannel,
-             pyuser);
+        idtype = va_arg(va, int);
+        entry = va_arg(va, void *);
+        mode = va_arg(va, SilcUInt32);
+        PYSILC_NEW_CHANNEL_OR_BREAK(va_arg(va, SilcChannelEntry), pychannel);
+        PYSILC_NEW_USER_OR_BREAK(va_arg(va, SilcClientEntry), pyuser);
+        switch (idtype) { 
+        case SILC_ID_CLIENT:
+            PYSILC_NEW_USER_OR_BREAK(entry, pyarg);
+            break;
+        case SILC_ID_CHANNEL:
+            PYSILC_NEW_CHANNEL_OR_BREAK(entry, pyarg);
+            break;
+        case SILC_ID_SERVER:
+            pyarg = Py_None; // TODO: no server objects
+            Py_INCREF(Py_None);
+            break;
+        }
+        
+        args = Py_BuildValue("(iOiOO)",
+                             idtype,
+                             pyarg,
+                             mode,
+                             pychannel,
+                             pyuser);
              
-         if (args == NULL) 
-             break;
-
-         if ((result = PyObject_CallObject(callback, args)) == 0)
-             PyErr_Print();
+        if (args == NULL) 
+            break;
+        
+        if ((result = PyObject_CallObject(callback, args)) == 0)
+            PyErr_Print();
         break;
 
     case SILC_NOTIFY_TYPE_MOTD:
@@ -498,9 +502,8 @@ static void _pysilc_client_callback_notify(SilcClient client,
         
     case SILC_NOTIFY_TYPE_KICKED:
         PYSILC_GET_CALLBACK_OR_BREAK("notify_kicked");
-        char *message;        
-        PYSILC_NEW_USER_OR_BREAK(va_arg(va, SilcClientEntry), pyarg);            
-        message = va_arg(va, char *);
+        PYSILC_NEW_USER_OR_BREAK(va_arg(va, SilcClientEntry), pyarg);
+        char *message = va_arg(va, char *);
         PYSILC_NEW_USER_OR_BREAK(va_arg(va, SilcClientEntry), pyuser);
         PYSILC_NEW_CHANNEL_OR_BREAK(va_arg(va, SilcChannelEntry), pychannel);
         
@@ -514,8 +517,8 @@ static void _pysilc_client_callback_notify(SilcClient client,
         PYSILC_GET_CALLBACK_OR_BREAK("notify_killed");
         PYSILC_NEW_USER_OR_BREAK(va_arg(va, SilcClientEntry), pyuser);
         char *kill_message = va_arg(va, char *);
-        SilcIdType idtype = va_arg(va, SilcIdType);
-        void *entry = va_arg(va, void *);
+        idtype = va_arg(va, int);
+        entry = va_arg(va, void *);
         PYSILC_NEW_CHANNEL_OR_BREAK(va_arg(va, SilcChannelEntry), pychannel);
         switch (idtype) { 
         case SILC_ID_CLIENT:
@@ -526,7 +529,7 @@ static void _pysilc_client_callback_notify(SilcClient client,
             break;
         case SILC_ID_SERVER:
             pyarg = Py_None; // TODO: no server objects
-            PY_INCREF(Py_None);
+            Py_INCREF(Py_None);
             break;
         }
 

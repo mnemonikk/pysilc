@@ -382,4 +382,3 @@ static PyObject *pysilc_load_key_pair(PyObject *mod, PyObject *args, PyObject *k
         
     return PySilcKeys_New(pkcs, public_key, private_key);
 }
-    

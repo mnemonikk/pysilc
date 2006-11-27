@@ -141,7 +141,7 @@ class SupySilcClient(silc.SilcClient):
         if ircmsg: self.irc.feedMsg(ircmsg)        
     
     def notify_topic_set(self, changer_type, changer, channel, topic):
-        self._cache_user(changedby)
+        self._cache_user(changer)
         self._cache_channel(channel)
         drivers.log.info('SILC: Notify (Topic Set):', channel, topic)
         if changer_type == silc.SILC_ID_CLIENT:
@@ -159,7 +159,7 @@ class SupySilcClient(silc.SilcClient):
     def notify_nick_change(self, olduser, newuser):
         self._cache_user(newuser)
         drivers.log.info('SILC: Notify (Nick Change):', olduser, newuser)
-        ircemu = ':%s!n=%s@%s NICK %s' % \ 
+        ircemu = ':%s!n=%s@%s NICK %s' % \
                  (olduser.nickname, olduser.username, olduser.hostname,
                   newuser.nickname)
         ircmsg = drivers.parseMsg(ircemu)
