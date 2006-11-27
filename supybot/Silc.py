@@ -2,7 +2,6 @@ import time
 import os
 import socket
 import re
-import types
 
 import supybot.log as log
 import supybot.conf as conf
@@ -17,21 +16,32 @@ import silc
 #    IRC has nick collisions, so you cannot have two users with same nick name.
 #    I presume SupyBot assumes this.
 
+SILC_KEY_NAME = "silckey"
+
+def strip_leading_hash(supybot_channel_name):
+    return supybot_channel_name[1:]
 
 class SupySilcClient(silc.SilcClient):
+    """Supybot SILC to IRC emulator."""
+    
     def __init__(self, irc, parent):
         self.nickname = conf.supybot.nick()
         self.username = conf.supybot.ident()
         self.realname = conf.supybot.user()
         
-        keybase = os.path.join(conf.supybot.directories.conf(), 'silckey')
+        keybase = os.path.join(conf.supybot.directories.conf(), SILC_KEY_NAME)
         pubkey = keybase + '.pub'
         privkey = keybase + '.prv'
         self.keys = None
+
         if os.path.exists(pubkey) and os.path.exists(privkey):
-            self.keys = silc.load_key_pair(pubkey, privkey)
+            try:
+                self.keys = silc.load_key_pair(pubkey, privkey, "")
+            except RuntimeError:
+                self.keys = silc.load_key_pair(pubkey, privkey, None)
         else:
-            self.keys = silc.create_key_pair(pubkey, privkey)
+            drivers.log.info("SILC: Generating Keys")
+            self.keys = silc.create_key_pair(pubkey, privkey, passphrase=None)
             
         silc.SilcClient.__init__(self, self.keys,
                                  self.nickname,
@@ -50,6 +60,10 @@ class SupySilcClient(silc.SilcClient):
         
     def _cache_channel(self, channel):
         self.channels[channel.channel_name] = channel
+
+    def ask_passphrase(self):
+        import getpass
+        return getpass.getpass('Passphrase:')
 
     def connected(self):
         drivers.log.info("SILC: Connected to server.")
@@ -117,29 +131,53 @@ class SupySilcClient(silc.SilcClient):
         if ircmsg: self.irc.feedMsg(ircmsg)
                                   
         
-    def notify_signoff(self, user, msg):
+    def notify_signoff(self, user):
         self._cache_user(user)
-        drivers.log.info('SILC: Notify (Signoff): %s: %s', user, msg)
+        drivers.log.info('SILC: Notify (Signoff): %s', user)
 
-        ircemu = ':%s!n=%s@%s QUIT :' % (user.nickname, user.username,
-                                           user.hostname)
+        ircemu = ':%s!n=%s@%s QUIT :' % (leaver.nickname, leaver.username,
+                                           leaver.hostname)
         ircmsg = drivers.parseMsg(ircemu)
         if ircmsg: self.irc.feedMsg(ircmsg)        
     
-    def notify_topic_set(self, type, changedby, channel, topic):
+    def notify_topic_set(self, changer_type, changer, channel, topic):
         self._cache_user(changedby)
         self._cache_channel(channel)
         drivers.log.info('SILC: Notify (Topic Set):', channel, topic)
+        if changer_type == silc.SILC_ID_CLIENT:
+            ircemu = ':%s!n=%s@%s TOPIC #%s :%s' % \
+                (changer.nickname, changer.username, changer.hostname,
+                 channel.channel_name, topic)
+            ircmsg = drivers.parseMsg(ircemu)
+            if ircmsg: self.irc.feedMsg(ircmsg)
+        elif changer_type == silc.SILC_ID_CHANNEL:
+            ircemu = ':%s TOPIC #%s :%s' % \
+                (changer.channel_name, channel.channel_name, topic)
+            ircmsg = drivers.parseMsg(ircemu)
+            if ircmsg: self.irc.feedMsg(ircmsg)
         
     def notify_nick_change(self, olduser, newuser):
         self._cache_user(newuser)
         drivers.log.info('SILC: Notify (Nick Change):', olduser, newuser)
+        ircemu = ':%s!n=%s@%s NICK %s' % \ 
+                 (olduser.nickname, olduser.username, olduser.hostname,
+                  newuser.nickname)
+        ircmsg = drivers.parseMsg(ircemu)
+        if ircmsg: self.irc.feedMsg(ircmsg)
         
-    def notify_cmode_change(self, *args):
-        pass # TODO: not implemented
+    def notify_cmode_change(self, type, changer, chan_mode, cipher_name,
+                            hmac_name, passphrase, founder_key, 
+                            channel_pubkeys, channel):
+        self._cache_channel(channel)
+        drivers.log.info('SILC: Notify (CMODE): for %s: %08x' % 
+                         (channel, chan_mode))
     
-    def notify_cumode_change(self, *args):
-        pass # TODO: not implemented
+    def notify_cumode_change(self, type, changer, chan_user_mode, user,
+                            for_channel):
+        self._cache_channel(for_channel)
+        self._cache_user(user)
+        drivers.log.info('SILC: Notify (CUMODE): for %s in %s: %08x' % 
+                         (user, for_channel, chan_user_mode))
         
     def notify_motd(self, msg):
         drivers.log.info('SILC: Notify (MOTD):', msg)
@@ -152,9 +190,17 @@ class SupySilcClient(silc.SilcClient):
         self._cache_user(kicker)
         self._cache_channel(channel)
         drivers.log.info('SILC: Notify (Kick):', kicked, reason, kicker, channel)
+        ircemu = ':%s!n=%s@%s KICK #%s %s' % \
+                 (kicker.nickname, kicker.username, kicker.hostname,
+                  channel.channel_name, kicked.nickname)
+        ircmsg = drivers.parseMsg(ircemu)
+        if ircmsg: self.irc.feedMsg(ircmsg)
         
-    def notify_killed(self, *args):
-        pass # TODO: not implemented
+    def notify_killed(self, killed, reason, killer, channel):
+        self._cache_user(kicked)
+        self._cache_user(kicker)
+        self._cache_channel(channel)
+        drivers.log.info('SILC: Notify (Killed):', killed, reason, killer, channel)
         
     def notify_error(self, type, message):
         drivers.log.info('SILC: Notify (Error):', type, message)
@@ -183,7 +229,7 @@ class SupySilcClient(silc.SilcClient):
             drivers.log.info('SILC: Reply (List):', channel_name, channel_topic)
             
     def command_reply_topic(self, channel, topic):
-        self.cache_channel(channel)
+        self._cache_channel(channel)
         drivers.log.info('SILC: Reply (Topic):', channel, topic)
         
     def command_reply_invite(self, channel, invite_list):
@@ -260,7 +306,7 @@ class SupySilcClient(silc.SilcClient):
     def command_reply_cumode(self, mode, channel, user):
         self._cache_channel(channel)
         self._cache_user(user)
-        drivers.log.info('SILC: Reply (CUmode):', channel, user, mode)        
+        drivers.log.info('SILC: Reply (CUmode):', channel, user, mode)
         
     def command_reply_kick(self, channel, user):
         self._cache_channel(channel)
@@ -364,22 +410,19 @@ class SilcDriver(drivers.IrcDriver, drivers.ServersMixin):
                     drivers.log.info('!! MSG UNKNOWN: %s', msg.command)
                 
     def do_PRIVMSG(self, msg):
-	umsg = msg.args[1]
-	if type(msg.args[1]) != types.UnicodeType:
-	    umsg = msg.args[1].decode('utf-8','replace')
-	
         if msg.args[0][0] == '#':
-            chan = self.silc.channels[msg.args[0][1:]]
-            self.silc.send_channel_message(chan, umsg)
+            chan = self.silc.channels[strip_leading_hash(msg.args[0])]
+            self.silc.send_channel_message(chan, msg.args[1])
         else:
             user = self.silc.users[msg.args[0]]
-            self.silc.send_private_message(user, umsg)
+            self.silc.send_private_message(user, msg.args[1])
+
 
     def do_JOIN(self, msg):
-        self.silc.command_call('JOIN %s' % msg.args[0][1:])
+        self.silc.command_call('JOIN %s' % strip_leading_hash(msg.args[0]))
         
     def do_PART(self, msg):
-        self.silc.command_call('LEAVE %s' % msg.args[0][1:])
+        self.silc.command_call('LEAVE %s' % strip_leading_hash(msg.args[0]))
 
     def do_NICK(self, msg):
         self.silc.command_call('NICK %s' % msg.args[0])
@@ -406,15 +449,19 @@ class SilcDriver(drivers.IrcDriver, drivers.ServersMixin):
 
     def do_WHO(self, msg):
         if msg.args[0][0] == '#':
-            self.silc.command_call('USERS %s' % msg.args[0][1:])
+            self.silc.command_call('USERS %s' % strip_leading_hash(msg.args[0]))
         else:
             print '!! Command Not recognised'
+
+    def do_TOPIC(self, msg):
+        self.silc.command_call('TOPIC %s %s' % 
+                               (strip_leading_hash(msg.args[0]), msg.args[1]))
 
     def do_QUIT(self, msg):
         self.silc.command_call('QUIT %s' % msg.args[0])
 
     def do_NAMES(self, msg):
-        self.silc.command_call('USERS %s' % msg.args[0][1:])
+        self.silc.command_call('USERS %s' % strip_leading_hash(msg.args[0]))
         
     def makeEmulatedIrcMsg(self, cmd, msg, prefix = None, username = None):
         if not prefix:

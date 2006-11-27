@@ -26,6 +26,9 @@ void initsilc() {
     PY_MOD_ADD_CLASS(mod, SilcClient);
     PY_MOD_ADD_CLASS(mod, SilcChannel);    
     PY_MOD_ADD_CLASS(mod, SilcUser);
+    PyModule_AddIntConstant(mod, "SILC_ID_CLIENT", SILC_ID_CLIENT);
+    PyModule_AddIntConstant(mod, "SILC_ID_CHANNEL", SILC_ID_CHANNEL);
+    PyModule_AddIntConstant(mod, "SILC_ID_SERVER", SILC_ID_SERVER);
 }
 
 static int PySilcClient_Init(PyObject *self, PyObject *args, PyObject *kwds)
