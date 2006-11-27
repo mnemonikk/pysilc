@@ -284,6 +284,11 @@ class SupySilcClient(silc.SilcClient):
         ircemu = ':%s 366 %s :End of /NAMES list' % (self.remote_host(), self.username)
         ircmsg = drivers.parseMsg(ircemu)
         if ircmsg: self.irc.feedMsg(ircmsg)
+            
+        # send topic as well
+        ircemu = ':%s: 332 #%s %s' % (self.remote_host(), channel_name, topic)
+        ircmsg = drivers.parseMsg(ircemu)
+        if ircmsg: self.irc.feedMsg(ircmsg)
         
     def command_reply_motd(self, msg):
         drivers.log.info('SILC: Reply (MOTD):', msg)
