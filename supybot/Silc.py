@@ -230,6 +230,10 @@ class SupySilcClient(silc.SilcClient):
             
     def command_reply_topic(self, channel, topic):
         self._cache_channel(channel)
+        ircemu = ':%s TOPIC #%s :%s' % \
+            (channel.channel_name, channel.channel_name, topic)
+        ircmsg = drivers.parseMsg(ircemu)
+        if ircmsg: self.irc.feedMsg(ircmsg)
         drivers.log.info('SILC: Reply (Topic):', channel, topic)
         
     def command_reply_invite(self, channel, invite_list):
@@ -454,8 +458,12 @@ class SilcDriver(drivers.IrcDriver, drivers.ServersMixin):
             print '!! Command Not recognised'
 
     def do_TOPIC(self, msg):
-        self.silc.command_call('TOPIC %s %s' % 
-                               (strip_leading_hash(msg.args[0]), msg.args[1]))
+        if len(msg.args) > 1:
+            self.silc.command_call('TOPIC %s %s' % 
+                                    (strip_leading_hash(msg.args[0]),
+                                     msg.args[1]))
+        else:
+            self.silc.command_call('TOPIC %s' % strip_leading_hash(msg.args[0]))
 
     def do_QUIT(self, msg):
         self.silc.command_call('QUIT %s' % msg.args[0])
