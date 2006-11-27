@@ -289,9 +289,10 @@ class SupySilcClient(silc.SilcClient):
         if ircmsg: self.irc.feedMsg(ircmsg)
             
         # send topic as well
-        ircemu = ':%s 332 RPL_TOPIC #%s :%s' % (self.remote_host(), 
-                                                channel_name,
-                                                topic)
+        ircemu = ':%s 332 %s #%s :%s' % (self.remote_host(),
+                                         self.username,
+                                         channel_name,
+                                         topic)
         ircmsg = drivers.parseMsg(ircemu)
         if ircmsg: self.irc.feedMsg(ircmsg)
         
