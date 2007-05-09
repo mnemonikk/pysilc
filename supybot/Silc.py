@@ -427,10 +427,10 @@ class SilcDriver(drivers.IrcDriver, drivers.ServersMixin):
     def do_PRIVMSG(self, msg):
         if msg.args[0][0] == '#':
             chan = self.silc.channels[strip_leading_hash(msg.args[0])]
-            self.silc.send_channel_message(chan, msg.args[1])
+            self.silc.send_channel_message(chan, msg.args[1].decode('utf8', 'replace'))
         else:
             user = self.silc.users[msg.args[0]]
-            self.silc.send_private_message(user, msg.args[1])
+            self.silc.send_private_message(user, msg.args[1].decode('utf8', 'replace'))
 
 
     def do_JOIN(self, msg):
