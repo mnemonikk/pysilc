@@ -40,15 +40,16 @@ static int PySilcClient_Init(PyObject *self, PyObject *args, PyObject *kwds)
     pyclient->callbacks.notify =            _pysilc_client_callback_notify;
     pyclient->callbacks.command =           _pysilc_client_callback_command;
     pyclient->callbacks.command_reply =     _pysilc_client_callback_command_reply;
-    pyclient->callbacks.connected =         _pysilc_client_callback_connected;
-    pyclient->callbacks.disconnected =      _pysilc_client_callback_disconnected;
     pyclient->callbacks.get_auth_method =   _pysilc_client_callback_get_auth_method;
     pyclient->callbacks.verify_public_key = _pysilc_client_callback_verify_key;
     pyclient->callbacks.ask_passphrase =    _pysilc_client_callback_ask_passphrase;
-    pyclient->callbacks.failure =           _pysilc_client_callback_failure;
     pyclient->callbacks.key_agreement =     _pysilc_client_callback_key_agreement;
     pyclient->callbacks.ftp =               _pysilc_client_callback_ftp;
     pyclient->callbacks.detach =            _pysilc_client_callback_detach;
+
+    pyclient->conncallbacks.connected =     _pysilc_client_callback_connected;
+    pyclient->conncallbacks.disconnected =  _pysilc_client_callback_disconnected;
+    pyclient->conncallbacks.failure =       _pysilc_client_callback_failure;
 
     char *nickname = NULL, *username = NULL, *realname = NULL, *hostname = NULL;
     static char *kwlist[] = {"keys", "nickname", "username", "realname", "hostname", NULL};
@@ -131,7 +132,7 @@ static PyObject *pysilc_client_connect_to_server(PyObject *self, PyObject *args,
         return NULL;
     }
             
-    result = silc_client_connect_to_server(pyclient->silcobj, NULL, port, host, NULL);
+    result = silc_client_connect_to_server(pyclient->silcobj, NULL, /* TODO: pub key */, /* TODO: priv key */, host, port, pyclient->conncallbacks, NULL);
     if (result != -1) {
         Py_INCREF(self);
         return PyInt_FromLong(result);
