@@ -107,9 +107,10 @@ typedef struct {
         *ftp,
         *detach;
 
-    SilcClient             silcobj;
-    SilcClientConnection   silcconn;
-    SilcClientOperations   callbacks;
+    SilcClient                   silcobj;
+    SilcClientConnection         silcconn;
+    SilcClientConnectCallback    conncallbacks;
+    SilcClientOperations         callbacks;
 
 } PySilcClient;
 
@@ -402,7 +403,8 @@ static PyMemberDef pysilc_client_members[] = {
 };
 
 #define PYSILC_CLIENT_DOC  "\
-  SilcClient(keys, nickname = \"\", username = \"\",\n\ realname = \"\",\
+  SilcClient(keys, nickname = \"\", username = \"\",\n\
+             realname = \"\",\
              hostname = \"\")\n\n\
   A SILC Client. 'keys' is a SilcKeys representing a public private\n\
   key pair. 'nickname', 'username', 'realname' and 'hostname'\n\
