@@ -22,7 +22,7 @@
 #endif
 
 #include "pysilc_macros.h"
-#include <silcincludes.h>
+#include <silc.h>
 #include <silcclient.h>
 #include <silctypes.h>
 
