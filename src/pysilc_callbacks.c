@@ -292,8 +292,8 @@ static void _pysilc_client_callback_command_reply_join_finished(SilcClient clien
     Py_XDECREF(args);
     Py_XDECREF(result);
 }                                                                
-    
-    
+
+
 static void _pysilc_client_callback_notify(SilcClient client, 
                                            SilcClientConnection conn,
                                            SilcNotifyType type, ...) {
@@ -583,28 +583,27 @@ static void _pysilc_client_callback_notify(SilcClient client,
 
 static void _pysilc_client_callback_command_reply(SilcClient client, 
                                                   SilcClientConnection conn,
-                                                  SilcCommandPayload cmd_payload,
-                                                  bool success,
                                                   SilcCommand command, 
-                                                  SilcStatus status, ...)
+                                                  SilcStatus status,
+                                                  SilcStatus error, ...)
 {
     PyObject *args = NULL, *result = NULL, *pyuser = NULL, *pychannel = NULL;
     PyObject *callback = NULL, *pyarg = NULL;
 
     PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
     va_list va;
-    va_start(va, status);
+    va_start(va, error);
     
-    if (!success) {
-        // we encounter an error, return the command and status
+    if (status != SILC_STATUS_OK) {
+        // we encounter an error, return the command and error
         callback = PyObject_GetAttrString((PyObject *)pyclient, 
                                           "command_reply_failed");
         if (!PyCallable_Check(callback))
             return;
         if (!(args = Py_BuildValue("(isis)", command, 
                                    silc_get_command_name(command), 
-                                   status,
-                                   silc_get_status_message(status)))) {
+                                   error,
+                                   silc_get_status_message(error)))) {
             Py_DECREF(callback);
             return;
         }
