@@ -73,8 +73,6 @@ static void _pysilc_client_connect_callback(SilcClient client,
             PyErr_Print();
     }
     else if (status == SILC_CLIENT_CONN_DISCONNECTED) {
-        PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
-
         if (status != SILC_STATUS_OK) {
             // TODO: raise an exception and abort
             // call silc_client_close_connection(client, conn);
@@ -92,9 +90,6 @@ static void _pysilc_client_connect_callback(SilcClient client,
             PyErr_Print();
     }
     else {
-        PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
-        PyObject *callback = NULL, *result = NULL;  
-
         callback = PyObject_GetAttrString((PyObject *)pyclient, "failure");
         if (!PyCallable_Check(callback))
             goto cleanup;
