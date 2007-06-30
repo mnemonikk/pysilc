@@ -151,7 +151,7 @@ static PyObject *PySilcUser_GetAttr(PyObject *self, PyObject *name)
         goto cleanup;
     if (result == 0) {
         char buf[224];
-        memcpy(&buf, (pyuser->silcobj->id), 224);
+        memcpy(&buf, &(pyuser->silcobj->id), 224);
         value = PyString_FromStringAndSize(buf, 224);
         goto cleanup;
     }
