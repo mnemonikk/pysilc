@@ -72,7 +72,6 @@ cleanup:
 
 static void _pysilc_client_callback_command(SilcClient client, 
                                             SilcClientConnection conn,
-                                            SilcClientCommandContext cmd_context, 
                                             bool success,
                                             SilcCommand command, 
                                             SilcStatus status) 
