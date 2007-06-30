@@ -136,7 +136,7 @@ static PyObject *PySilcUser_GetAttr(PyObject *self, PyObject *name)
         goto cleanup;
     if (result == 0) {
         if (pyuser->silcobj->fingerprint)
-            value = PyString_FromStringAndSize(pyuser->silcobj->fingerprint, pyuser->silcobj->fingerprint_len);
+            value = PyString_FromStringAndSize(pyuser->silcobj->fingerprint, 20);
         else {
             value = Py_None;
             Py_INCREF(value);

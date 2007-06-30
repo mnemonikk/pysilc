@@ -515,7 +515,6 @@ Accessible Attributes:\n\n\
   server = string\n\n\
   realname = string\n\n\
   fingerprint = string\n\n\
-  fingerprint_len = int\n\n\
   user_id = string (64/160bit)\n\n\
   mode = int\n\n\
   status = int"
