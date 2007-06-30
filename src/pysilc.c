@@ -132,7 +132,7 @@ static PyObject *pysilc_client_connect_to_server(PyObject *self, PyObject *args,
         return NULL;
     }
             
-    result = silc_client_connect_to_server(pyclient->silcobj, NULL, /* TODO: pub key */, /* TODO: priv key */, host, port, pyclient->conncallbacks, NULL);
+    result = silc_client_connect_to_server(pyclient->silcobj, NULL, pyclient->silcobj->public_key, pyclient->silcobj->private_key, host, port, pyclient->conncallbacks, NULL);
     if (result != -1) {
         Py_INCREF(self);
         return PyInt_FromLong(result);
