@@ -1039,25 +1039,3 @@ cleanup:
     Py_XDECREF(callback);
     Py_XDECREF(result);
 }
-
-static void _pysilc_client_callback_detach(SilcClient client, 
-                                            SilcClientConnection conn,
-                                            const unsigned char *detach_data,
-                                            SilcUInt32 detach_data_len)
-{
-    PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
-    PyObject *result = NULL, *callback = NULL, *args = NULL;
-    callback = PyObject_GetAttrString((PyObject *)pyclient, "detach");
-    if (!PyCallable_Check(callback))
-        goto cleanup;
-        
-    if (!(args = Py_BuildValue("(s#)", detach_data, detach_data_len)))
-        goto cleanup;
-    if ((result = PyObject_CallObject(callback, args)) == 0)
-        PyErr_Print();    
-    
-cleanup:
-    Py_XDECREF(callback);
-    Py_XDECREF(args);
-    Py_XDECREF(result);
-}                                            

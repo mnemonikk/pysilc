@@ -48,7 +48,6 @@ static int PySilcClient_Init(PyObject *self, PyObject *args, PyObject *kwds)
     pyclient->callbacks.ask_passphrase =    _pysilc_client_callback_ask_passphrase;
     pyclient->callbacks.key_agreement =     _pysilc_client_callback_key_agreement;
     pyclient->callbacks.ftp =               _pysilc_client_callback_ftp;
-    pyclient->callbacks.detach =            _pysilc_client_callback_detach;
 
     char *nickname = NULL, *username = NULL, *realname = NULL, *hostname = NULL;
     static char *kwlist[] = {"keys", "nickname", "username", "realname", "hostname", NULL};
