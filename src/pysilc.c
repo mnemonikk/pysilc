@@ -311,7 +311,7 @@ static PyObject *pysilc_create_key_pair(PyObject *mod, PyObject *args, PyObject 
     char *pub_identifier = NULL;
     
     SilcUInt32      key_length = 2048;
-    SilcPKCS        pkcs;
+    SilcPKCSType    pkcs;
     SilcPublicKey   public_key;
     SilcPrivateKey  private_key;
     
@@ -350,7 +350,7 @@ static PyObject *pysilc_load_key_pair(PyObject *mod, PyObject *args, PyObject *k
 	char *passphrase = NULL;
     char *pub_filename , *prv_filename;
 	
-    SilcPKCS        pkcs;
+    SilcPKCSType    pkcs;
     SilcPublicKey   public_key;
     SilcPrivateKey  private_key;
     

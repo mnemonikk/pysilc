@@ -40,7 +40,7 @@ typedef struct {
 
 typedef struct {
     PyObject_HEAD
-    SilcPKCS        pkcs;
+    SilcPKCSType    pkcs;
     SilcPublicKey   public;
     SilcPrivateKey  private;
 } PySilcKeys;
@@ -183,7 +183,7 @@ static PyMemberDef pysilc_user_members[] = {
 
 /*  ---------------- pysilc keys ------------- */
 
-static PyObject *PySilcKeys_New(SilcPKCS pkcs, SilcPublicKey public, SilcPrivateKey private);
+static PyObject *PySilcKeys_New(SilcPKCSType pkcs, SilcPublicKey public, SilcPrivateKey private);
 static void PySilcKeys_Del(PyObject *object);
 
 static PyMethodDef pysilc_keys_methods[] = {

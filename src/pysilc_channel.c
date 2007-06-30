@@ -155,7 +155,7 @@ static int PySilcChannel_Compare(PyObject *self, PyObject *other)
 }
 
 
-static PyObject *PySilcKeys_New(SilcPKCS pkcs, SilcPublicKey public, SilcPrivateKey private)
+static PyObject *PySilcKeys_New(SilcPKCSType pkcs, SilcPublicKey public, SilcPrivateKey private)
 {
     PySilcKeys *pykeys = (PySilcKeys *)PyObject_New(PySilcKeys, &PySilcKeys_Type);
     if (!pykeys)
