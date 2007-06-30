@@ -992,7 +992,6 @@ static void _pysilc_client_callback_get_auth_method(SilcClient client,
 
 static void _pysilc_client_callback_failure(SilcClient client, 
                                             SilcClientConnection conn,
-                                            SilcProtocol protocol, 
                                             void *failure)
 {
     PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
