@@ -130,9 +130,11 @@ cleanup:
 
 static void _pysilc_client_callback_command(SilcClient client, 
                                             SilcClientConnection conn,
-                                            bool success,
+                                            SilcBool success,
                                             SilcCommand command, 
-                                            SilcStatus status) 
+                                            SilcStatus status,
+                                            SilcUInt32 argc,
+                                            unsigned char **argv)
 {
     PyObject *callback = NULL, *args = NULL, *result = NULL;
     
@@ -582,9 +584,9 @@ static void _pysilc_client_callback_notify(SilcClient client,
 
 
 
-static void _pysilc_client_callback_command_reply(SilcClient client, 
+static void _pysilc_client_callback_command_reply(SilcClient client,
                                                   SilcClientConnection conn,
-                                                  SilcCommand command, 
+                                                  SilcCommand command,
                                                   SilcStatus status,
                                                   SilcStatus error, ...)
 {
@@ -990,13 +992,12 @@ static void _pysilc_client_callback_get_auth_method(SilcClient client,
     completion(SILC_AUTH_PUBLIC_KEY, NULL, 0, context);
 }
 
-static bool _pysilc_client_callback_key_agreement(SilcClient client, 
-                                            SilcClientConnection conn,
-                                            SilcClientEntry client_entry, 
-                                            const char *hostname,
-                                            SilcUInt16 port, 
-                                            SilcKeyAgreementCallback *completion,
-                                            void **context)
+static bool _pysilc_client_callback_key_agreement(SilcClient client,
+                                                  SilcClientConnection conn,
+                                                  SilcClientEntry client_entry,
+                                                  const char *hostname,
+                                                  SilcUInt16 protocol,
+                                                  SilcUInt16 port)
 {
     // TODO :implement me
     return FALSE;
