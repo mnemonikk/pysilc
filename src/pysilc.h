@@ -518,8 +518,7 @@ Accessible Attributes:\n\n\
   fingerprint_len = int\n\n\
   user_id = string (64/160bit)\n\n\
   mode = int\n\n\
-  status = int\n\n\
-  resolve_cmd_ident = int"
+  status = int"
 
 static PyTypeObject PySilcUser_Type = {
     PyObject_HEAD_INIT(&PyType_Type)

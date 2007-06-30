@@ -47,7 +47,6 @@ static PyObject *PySilcUser_GetAttr(PyObject *self, PyObject *name)
     // - (TODO) public_key;
     // - int status
     // - (TODO) channels
-    // - int resolve_cmd_ident;
     
     int result;
     PyObject *temp = NULL, *value = NULL;
@@ -174,16 +173,6 @@ static PyObject *PySilcUser_GetAttr(PyObject *self, PyObject *name)
         goto cleanup;
     if (result == 0) {
         value = PyInt_FromLong(pyuser->silcobj->status);
-        goto cleanup;
-    }
-    
-    // check for resolve_cmd_ident
-    Py_DECREF(temp);
-    temp = PyString_FromString("resolve_cmd_ident");
-    if (PyObject_Cmp(temp, name, &result) == -1)
-        goto cleanup;
-    if (result == 0) {
-        value = PyInt_FromLong(pyuser->silcobj->resolve_cmd_ident);
         goto cleanup;
     }
     
