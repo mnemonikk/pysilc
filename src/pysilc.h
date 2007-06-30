@@ -516,8 +516,7 @@ Accessible Attributes:\n\n\
   realname = string\n\n\
   fingerprint = string\n\n\
   user_id = string (64/160bit)\n\n\
-  mode = int\n\n\
-  status = int"
+  mode = int"
 
 static PyTypeObject PySilcUser_Type = {
     PyObject_HEAD_INIT(&PyType_Type)

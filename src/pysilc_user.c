@@ -39,13 +39,11 @@ static PyObject *PySilcUser_GetAttr(PyObject *self, PyObject *name)
     // - char *server
     // - char *realname
     // - unsigned char *fingerprint;
-    //   SilcUInt32 finderprint_len;
     //
     // - 64/160 bit user id
     // - unsigned int mode
     // - (TODO) attrs;
     // - (TODO) public_key;
-    // - int status
     // - (TODO) channels
     
     int result;
@@ -163,16 +161,6 @@ static PyObject *PySilcUser_GetAttr(PyObject *self, PyObject *name)
         goto cleanup;
     if (result == 0) {
         value = PyInt_FromLong(pyuser->silcobj->mode);
-        goto cleanup;
-    }
-    
-    // check for status
-    Py_DECREF(temp);
-    temp = PyString_FromString("status");
-    if (PyObject_Cmp(temp, name, &result) == -1)
-        goto cleanup;
-    if (result == 0) {
-        value = PyInt_FromLong(pyuser->silcobj->status);
         goto cleanup;
     }
     
