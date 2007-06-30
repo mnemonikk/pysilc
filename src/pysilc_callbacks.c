@@ -54,7 +54,7 @@ static void _pysilc_client_connect_callback(SilcClient client,
                                             void *context)
 {
 
-    if ((status == SILC_CLIENT_CONN_SUCCESS) || (status == SILC_CLIENT_CONN_SUCCESS_RESUME))
+    if ((status == SILC_CLIENT_CONN_SUCCESS) || (status == SILC_CLIENT_CONN_SUCCESS_RESUME)) {
         PyObject *result = NULL, *callback = NULL;
         PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
 
@@ -99,7 +99,6 @@ static void _pysilc_client_connect_callback(SilcClient client,
             Py_XDECREF(callback);
             Py_XDECREF(args);
             Py_XDECREF(result);
-        }
     }
     else {
         PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
