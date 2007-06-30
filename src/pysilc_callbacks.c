@@ -965,13 +965,11 @@ cleanup:
     Py_XDECREF(pyuser);
 }
 
-static void _pysilc_client_callback_verify_key(SilcClient client, 
+static void _pysilc_client_callback_verify_key(SilcClient client,
                                                SilcClientConnection conn,
-                                               SilcSocketType conn_type, 
-                                               unsigned char *pk,
-                                               SilcUInt32 pk_len, 
-                                               SilcSKEPKType pk_type,
-                                               SilcVerifyPublicKey completion, 
+                                               SilcConnectionType conn_type,
+                                               SilcPublicKey public_key,
+                                               SilcVerifyPublicKey completion,
                                                void *context)
 {
     // TODO: implement me
