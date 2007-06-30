@@ -463,8 +463,7 @@ Attributes accessible:\n\n\
   channel_id = string (64-160bit)\n\n\
   mode = int\n\n\
   topic = string\n\n\
-  user_limit = int \n\n\
-  resolve_cmd_ident = int"
+  user_limit = int"
 
 static PyTypeObject PySilcChannel_Type = {
     PyObject_HEAD_INIT(&PyType_Type)

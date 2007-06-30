@@ -40,7 +40,6 @@ static PyObject *PySilcChannel_GetAttr(PyObject *self, PyObject *name)
     // - (TODO) founder_key
     // - unsigned int user_limit
     // - (TODO) user_list
-    // - int resolve_cmd_ident
     
     int result;
     PyObject *temp = NULL, *value = NULL;
@@ -85,7 +84,7 @@ static PyObject *PySilcChannel_GetAttr(PyObject *self, PyObject *name)
         goto cleanup;
     if (result == 0) {
         char buf[160];
-        memcpy(&buf, (pychannel->silcobj->id), 160);
+        memcpy(&buf, &(pychannel->silcobj->id), 160);
         value = PyString_FromStringAndSize(buf, 160);
         goto cleanup;
     }
@@ -107,16 +106,6 @@ static PyObject *PySilcChannel_GetAttr(PyObject *self, PyObject *name)
         goto cleanup;
     if (result == 0) {
         value = PyInt_FromLong(pychannel->silcobj->user_limit);
-        goto cleanup;
-    }
-    
-    // check for resolve_cmd_ident
-    Py_DECREF(temp);    
-    temp = PyString_FromString("resolve_cmd_ident");
-    if (PyObject_Cmp(temp, name, &result) == -1)
-        goto cleanup;
-    if (result == 0) {
-        value = PyInt_FromLong(pychannel->silcobj->resolve_cmd_ident);
         goto cleanup;
     }
     
