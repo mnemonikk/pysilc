@@ -109,7 +109,7 @@ typedef struct {
 
     SilcClient                   silcobj;
     SilcClientConnection         silcconn;
-    SilcClientConnectCallback    conncallbacks;
+    SilcClientConnectCallback    conncallback;
     SilcClientOperations         callbacks;
 
 } PySilcClient;

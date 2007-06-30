@@ -46,6 +46,77 @@
 #define PYSILC_SILCBUFFER_TO_PYLIST(source, destination, Type) \
     do { } while (0);
 
+static void _pysilc_client_connect_callback(SilcClient client,
+                                            SilcClientConnection conn,
+                                            SilcClientConnectionStatus status,
+                                            SilcStatus error,
+                                            const char *message,
+                                            void *context)
+{
+
+    if ((status == SILC_CLIENT_CONN_SUCCESS) || (status == SILC_CLIENT_CONN_SUCCESS_RESUME))
+        PyObject *result = NULL, *callback = NULL;
+        PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
+
+        if (error != SILC_STATUS_OK) {
+            // TODO: raise an exception and abort
+            // call silc_client_close_connection(client, conn);
+            pyclient->silcconn = NULL;
+            goto cleanup1; 
+        }
+
+        pyclient->silcconn = conn;
+
+        callback = PyObject_GetAttrString((PyObject *)pyclient, "connected");
+        if (!PyCallable_Check(callback))
+            goto cleanup1;
+        if ((result = PyObject_CallObject(callback, NULL)) == 0)
+            PyErr_Print();
+        cleanup1:
+            Py_XDECREF(callback);
+            Py_XDECREF(result);
+    }
+    else if (status == SILC_CLIENT_CONN_DISCONNECTED) {
+        PyObject *result = NULL, *callback = NULL, *args = NULL;
+        PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
+
+        if (status != SILC_STATUS_OK) {
+            // TODO: raise an exception and abort
+            // call silc_client_close_connection(client, conn);
+        }
+
+        // TODO: we're not letting the user know about ClientConnection atm.
+        pyclient->silcconn = NULL;
+        callback = PyObject_GetAttrString((PyObject *)pyclient, "disconnected");
+        if (!PyCallable_Check(callback))
+            goto cleanup2;
+
+        if (!(args = Py_BuildValue("(s)", message)))
+            goto cleanup2;
+        if ((result = PyObject_CallObject(callback, args)) == 0)
+            PyErr_Print();
+        cleanup2:
+            Py_XDECREF(callback);
+            Py_XDECREF(args);
+            Py_XDECREF(result);
+        }
+    }
+    else {
+        PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
+        PyObject *callback = NULL, *result = NULL;  
+
+        callback = PyObject_GetAttrString((PyObject *)pyclient, "failure");
+        if (!PyCallable_Check(callback))
+            goto cleanup3;
+        // TODO: pass on protocol, failure parameters
+        if ((result = PyObject_CallObject(callback, NULL)) == 0)
+            PyErr_Print();
+        cleanup3:
+            Py_XDECREF(callback);
+            Py_XDECREF(result);
+    }
+}
+
 static void _pysilc_client_callback_say(SilcClient client,
                                         SilcClientConnection conn,
                                         SilcClientMessageType type,
@@ -148,62 +219,6 @@ static void _pysilc_client_callback_private_message(SilcClient client,
     if ((result = PyObject_CallObject(callback, args)) == 0)
         PyErr_Print();
 
-cleanup:
-    Py_XDECREF(callback);
-    Py_XDECREF(args);
-    Py_XDECREF(result);
-}
-
-static void _pysilc_client_callback_connected(SilcClient client, 
-                                              SilcClientConnection conn,
-                                              SilcClientConnectionStatus status)
-{
-    PyObject *result = NULL, *callback = NULL;
-    PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
-    
-    if (status != SILC_STATUS_OK) {
-        // TODO: raise an exception and abort
-        // call silc_client_close_connection(client, conn);
-        pyclient->silcconn = NULL;
-        goto cleanup;
-    }
-
-
-    pyclient->silcconn = conn;
-
-    callback = PyObject_GetAttrString((PyObject *)pyclient, "connected");
-    if (!PyCallable_Check(callback))
-        goto cleanup;
-    if ((result = PyObject_CallObject(callback, NULL)) == 0)
-        PyErr_Print();
-cleanup:
-    Py_XDECREF(callback);
-    Py_XDECREF(result);
-}
-
-static void _pysilc_client_callback_disconnected(SilcClient client,
-                                                 SilcClientConnection conn,
-                                                 SilcStatus status,
-                                                 const char *message)
-{
-    PyObject *result = NULL, *callback = NULL, *args = NULL;
-    PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
-    
-    if (status != SILC_STATUS_OK) {
-        // TODO: raise an exception and abort
-        // call silc_client_close_connection(client, conn);
-    }
-    
-    // TODO: we're not letting the user know about ClientConnection atm.
-    pyclient->silcconn = NULL;
-    callback = PyObject_GetAttrString((PyObject *)pyclient, "disconnected");
-    if (!PyCallable_Check(callback))
-        goto cleanup;
-
-    if (!(args = Py_BuildValue("(s)", message)))
-        goto cleanup;
-    if ((result = PyObject_CallObject(callback, args)) == 0)
-        PyErr_Print();    
 cleanup:
     Py_XDECREF(callback);
     Py_XDECREF(args);
@@ -987,25 +1002,6 @@ static void _pysilc_client_callback_get_auth_method(SilcClient client,
     // TODO: implement this properly
     completion(SILC_AUTH_PUBLIC_KEY, NULL, 0, context);
 }
-
-static void _pysilc_client_callback_failure(SilcClient client, 
-                                            SilcClientConnection conn,
-                                            void *failure)
-{
-    PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
-    PyObject *callback = NULL, *result = NULL;
-    
-    callback = PyObject_GetAttrString((PyObject *)pyclient, "failure");
-    if (!PyCallable_Check(callback))
-        goto cleanup;
-    // TODO: pass on protocol, failure parameters
-    if ((result = PyObject_CallObject(callback, NULL)) == 0)
-        PyErr_Print();
-cleanup:
-    Py_XDECREF(callback);
-    Py_XDECREF(result);
-}
-
 
 static bool _pysilc_client_callback_key_agreement(SilcClient client, 
                                             SilcClientConnection conn,
