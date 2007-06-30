@@ -976,15 +976,16 @@ static void _pysilc_client_callback_verify_key(SilcClient client,
     completion(TRUE, context);   
 }
 
-static void _pysilc_client_callback_get_auth_method(SilcClient client, 
+static void _pysilc_client_callback_get_auth_method(SilcClient client,
                                                     SilcClientConnection conn,
-                                                    char *hostname, 
+                                                    char *hostname,
                                                     SilcUInt16 port,
-                                                    SilcGetAuthMeth completion, 
+                                                    SilcAuthMethod auth_method,
+                                                    SilcGetAuthMeth completion,
                                                     void *context)
 {
     // TODO: implement this properly
-    completion(TRUE, SILC_AUTH_PUBLIC_KEY, NULL, 0, context);
+    completion(SILC_AUTH_PUBLIC_KEY, NULL, 0, context);
 }
 
 static void _pysilc_client_callback_failure(SilcClient client, 
