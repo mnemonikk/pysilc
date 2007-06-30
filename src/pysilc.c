@@ -70,8 +70,6 @@ static int PySilcClient_Init(PyObject *self, PyObject *args, PyObject *kwds)
         
     pyclient->silcconn = NULL;
     
-    if (nickname)
-        pyclient->silcobj->nickname = strdup(nickname);
     if (username)
         pyclient->silcobj->username = strdup(username);
     else
@@ -121,21 +119,25 @@ static PyObject *pysilc_client_connect_to_server(PyObject *self, PyObject *args,
     char *host;
     static char *kwlist[] = {"host", "port", NULL};
     PySilcClient *pyclient = (PySilcClient *)self;
-    
+    SilcClientConnectionParams params;
+
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "s|I", kwlist, &host, &port))
         return NULL;
-        
+
     if (!pyclient || !pyclient->silcobj) {
         PyErr_SetString(PyExc_RuntimeError, "SILC Client Not Initialised");
         return NULL;
     }
-            
-    result = silc_client_connect_to_server(pyclient->silcobj, NULL, pyclient->silcobj->public_key, pyclient->silcobj->private_key, host, port, pyclient->conncallback, NULL);
+
+    params.nickname = strdup(pyclient->silcobj->nickname);
+
+    result = silc_client_connect_to_server(pyclient->silcobj, params, pyclient->silcobj->public_key, pyclient->silcobj->private_key, host, port, pyclient->conncallback, NULL);
     if (result != -1) {
         Py_INCREF(self);
         return PyInt_FromLong(result);
     }
-    
+
     return PyInt_FromLong(result);
 }
 
@@ -309,7 +311,6 @@ static PyObject *pysilc_create_key_pair(PyObject *mod, PyObject *args, PyObject 
     char *pub_identifier = NULL;
     
     SilcUInt32      key_length = 2048;
-    SilcPKCSType    pkcs;
     SilcPublicKey   public_key;
     SilcPrivateKey  private_key;
     
@@ -333,13 +334,13 @@ static PyObject *pysilc_create_key_pair(PyObject *mod, PyObject *args, PyObject 
 	
     bool result = silc_create_key_pair(pkcs_name, key_length, pub_filename, 
                                        prv_filename, pub_identifier, passphrase,
-                                       &pkcs, &public_key, &private_key, 0);
+                                       &public_key, &private_key, 0);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to generate keys.");
         return NULL;
     }
         
-    return PySilcKeys_New(pkcs, public_key, private_key);
+    return PySilcKeys_New(public_key, private_key);
 }
 
 static PyObject *pysilc_load_key_pair(PyObject *mod, PyObject *args, PyObject *kwds)
@@ -348,7 +349,6 @@ static PyObject *pysilc_load_key_pair(PyObject *mod, PyObject *args, PyObject *k
 	char *passphrase = NULL;
     char *pub_filename , *prv_filename;
 	
-    SilcPKCSType    pkcs;
     SilcPublicKey   public_key;
     SilcPrivateKey  private_key;
     
@@ -370,14 +370,14 @@ static PyObject *pysilc_load_key_pair(PyObject *mod, PyObject *args, PyObject *k
 	}
 
 	// Use the passphrase passed.
-    bool result = silc_load_key_pair(pub_filename, prv_filename, 
-									 passphrase,
-									 &pkcs, &public_key, &private_key);
-	
+    bool result = silc_load_key_pair(pub_filename, prv_filename,
+                                     passphrase, &public_key,
+                                     &private_key);
+
     if (!result) {
 		PyErr_SetString(PyExc_RuntimeError, "Unable to load keys.");
 		return NULL;
     }
         
-    return PySilcKeys_New(pkcs, public_key, private_key);
+    return PySilcKeys_New(public_key, private_key);
 }

@@ -992,7 +992,7 @@ static void _pysilc_client_callback_get_auth_method(SilcClient client,
     completion(SILC_AUTH_PUBLIC_KEY, NULL, 0, context);
 }
 
-static bool _pysilc_client_callback_key_agreement(SilcClient client,
+static void _pysilc_client_callback_key_agreement(SilcClient client,
                                                   SilcClientConnection conn,
                                                   SilcClientEntry client_entry,
                                                   const char *hostname,
@@ -1000,7 +1000,6 @@ static bool _pysilc_client_callback_key_agreement(SilcClient client,
                                                   SilcUInt16 port)
 {
     // TODO :implement me
-    return FALSE;
 }                                        
 
 static void _pysilc_client_callback_ftp(SilcClient client,

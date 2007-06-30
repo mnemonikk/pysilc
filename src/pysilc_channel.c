@@ -144,13 +144,12 @@ static int PySilcChannel_Compare(PyObject *self, PyObject *other)
 }
 
 
-static PyObject *PySilcKeys_New(SilcPKCSType pkcs, SilcPublicKey public, SilcPrivateKey private)
+static PyObject *PySilcKeys_New(SilcPublicKey public, SilcPrivateKey private)
 {
     PySilcKeys *pykeys = (PySilcKeys *)PyObject_New(PySilcKeys, &PySilcKeys_Type);
     if (!pykeys)
         return NULL;
     
-    pykeys->pkcs = pkcs;
     pykeys->private = private;
     pykeys->public = public;
     
@@ -160,6 +159,5 @@ static PyObject *PySilcKeys_New(SilcPKCSType pkcs, SilcPublicKey public, SilcPri
 static void PySilcKeys_Del(PyObject *object)
 {
     // TODO: free them properly
-    //silc_pkcs_free((PySilcKeys *)object)->pkcs);
     PyObject_Del(object);
 }

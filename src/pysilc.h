@@ -183,7 +183,7 @@ static PyMemberDef pysilc_user_members[] = {
 
 /*  ---------------- pysilc keys ------------- */
 
-static PyObject *PySilcKeys_New(SilcPKCSType pkcs, SilcPublicKey public, SilcPrivateKey private);
+static PyObject *PySilcKeys_New(SilcPublicKey public, SilcPrivateKey private);
 static void PySilcKeys_Del(PyObject *object);
 
 static PyMethodDef pysilc_keys_methods[] = {
