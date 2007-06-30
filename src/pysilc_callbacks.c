@@ -53,31 +53,26 @@ static void _pysilc_client_connect_callback(SilcClient client,
                                             const char *message,
                                             void *context)
 {
+    PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
+    PyObject *args = NULL, *callback = NULL, *result = NULL;
 
     if ((status == SILC_CLIENT_CONN_SUCCESS) || (status == SILC_CLIENT_CONN_SUCCESS_RESUME)) {
-        PyObject *result = NULL, *callback = NULL;
-        PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
-
         if (error != SILC_STATUS_OK) {
             // TODO: raise an exception and abort
             // call silc_client_close_connection(client, conn);
             pyclient->silcconn = NULL;
-            goto cleanup1; 
+            goto cleanup;
         }
 
         pyclient->silcconn = conn;
 
         callback = PyObject_GetAttrString((PyObject *)pyclient, "connected");
         if (!PyCallable_Check(callback))
-            goto cleanup1;
+            goto cleanup;
         if ((result = PyObject_CallObject(callback, NULL)) == 0)
             PyErr_Print();
-        cleanup1:
-            Py_XDECREF(callback);
-            Py_XDECREF(result);
     }
     else if (status == SILC_CLIENT_CONN_DISCONNECTED) {
-        PyObject *result = NULL, *callback = NULL, *args = NULL;
         PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
 
         if (status != SILC_STATUS_OK) {
@@ -89,16 +84,12 @@ static void _pysilc_client_connect_callback(SilcClient client,
         pyclient->silcconn = NULL;
         callback = PyObject_GetAttrString((PyObject *)pyclient, "disconnected");
         if (!PyCallable_Check(callback))
-            goto cleanup2;
+            goto cleanup;
 
         if (!(args = Py_BuildValue("(s)", message)))
-            goto cleanup2;
+            goto cleanup;
         if ((result = PyObject_CallObject(callback, args)) == 0)
             PyErr_Print();
-        cleanup2:
-            Py_XDECREF(callback);
-            Py_XDECREF(args);
-            Py_XDECREF(result);
     }
     else {
         PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
@@ -106,14 +97,16 @@ static void _pysilc_client_connect_callback(SilcClient client,
 
         callback = PyObject_GetAttrString((PyObject *)pyclient, "failure");
         if (!PyCallable_Check(callback))
-            goto cleanup3;
+            goto cleanup;
         // TODO: pass on protocol, failure parameters
         if ((result = PyObject_CallObject(callback, NULL)) == 0)
             PyErr_Print();
-        cleanup3:
-            Py_XDECREF(callback);
-            Py_XDECREF(result);
     }
+
+cleanup:
+    Py_XDECREF(args);
+    Py_XDECREF(callback);
+    Py_XDECREF(result);
 }
 
 static void _pysilc_client_callback_say(SilcClient client,
