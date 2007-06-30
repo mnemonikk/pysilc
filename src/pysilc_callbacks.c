@@ -931,7 +931,7 @@ static void _pysilc_client_callback_command_reply(SilcClient client,
         if (channel && channel->user_list) {
             silc_hash_table_list(channel->user_list, &hash_list);
             while (silc_hash_table_get(&hash_list, (void *)&user, (void *)&user_channel)) {
-                cached = silc_client_get_client_by_id(client, conn, user->id);
+                cached = silc_client_get_client_by_id(client, conn, &(user->id));
                 if (cached) {
                     u = PySilcUser_New(cached);
                     PyTuple_SetItem(pyuser, i, u);
