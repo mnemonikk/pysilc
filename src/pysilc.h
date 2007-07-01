@@ -40,7 +40,6 @@ typedef struct {
 
 typedef struct {
     PyObject_HEAD
-    SilcPKCSType    pkcs;
     SilcPublicKey   public;
     SilcPrivateKey  private;
 } PySilcKeys;
@@ -228,9 +227,8 @@ static PyMethodDef pysilc_client_methods[] = {
         (PyCFunction)pysilc_client_send_channel_message, 
         METH_VARARGS | METH_KEYWORDS, 
         "send_channel_message(channel, messsage, private_key = None,\n"
-        "                     flags = 0, force_send = False)\n\n"
+        "                     flags = 0)\n\n"
         "Send a message (Unicode string) to a channel (SilcChannel object).\n"
-        "Setting 'force_send' to True means send the packet immediately\n."
         "TODO: flags and private_key support not implemented.\n"
     },
     {
@@ -238,9 +236,8 @@ static PyMethodDef pysilc_client_methods[] = {
         (PyCFunction)pysilc_client_send_private_message, 
         METH_VARARGS | METH_KEYWORDS, 
         "send_private_message(user, messsage, private_key = None,\n"
-        "                     flags = 0, force_send = False)\n\n"
+        "                     flags = 0)\n\n"
         "Send a message (Unicode string) to a user (SilcUser object).\n"
-        "Setting 'force_send' to True means send the packet immediately\n."
         "TODO: flags and private_key support not implemented.\n"
     },
     {
