@@ -98,7 +98,7 @@ static void PySilcClient_Del(PyObject *obj)
     printf("SilcClient.__del__\n");
     PySilcClient *pyclient = (PySilcClient *)obj;
     if (pyclient->silcobj) {
-        silc_client_stop(pyclient->silcobj);
+        silc_client_stop(pyclient->silcobj, NULL, NULL);
         if (pyclient->silcobj->username)
             free(pyclient->silcobj->username);          
         if (pyclient->silcobj->realname)
