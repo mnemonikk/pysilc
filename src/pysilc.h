@@ -110,6 +110,7 @@ typedef struct {
     SilcClientConnection         silcconn;
     SilcClientConnectCallback    conncallback;
     SilcClientOperations         callbacks;
+    SilcClientConnectionParams   params;
 
 } PySilcClient;
 

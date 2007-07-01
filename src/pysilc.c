@@ -69,7 +69,11 @@ static int PySilcClient_Init(PyObject *self, PyObject *args, PyObject *kwds)
         return -1;
         
     pyclient->silcconn = NULL;
-    
+
+    memset(&(pyclient->params), 0, sizeof(pyclient->params));
+
+    if (nickname)
+        pyclient->params.nickname = strdup(nickname);
     if (username)
         pyclient->silcobj->username = strdup(username);
     else
@@ -83,18 +87,13 @@ static int PySilcClient_Init(PyObject *self, PyObject *args, PyObject *kwds)
     else
         pyclient->silcobj->hostname = silc_net_localhost();
 
-    /* martynas: TODO */
-    /*if (nickname)
-        pyclient->silcconn->nickname = strdup(nickname);*/
-    /*pyclient->silcconn->public_key   = keys->public;
-    pyclient->silcconn->Private_key  = keys->private;*/
-    
     pyclient->keys = keys;
     Py_INCREF(keys);
     
     silc_client_init(pyclient->silcobj, pyclient->silcobj->username,
                      pyclient->silcobj->hostname,
-                     pyclient->silcobj->realname, _pysilc_client_running, pyclient->silcobj);
+                     pyclient->silcobj->realname, _pysilc_client_running,
+                     pyclient->silcobj);
 
     return 0;
 }
@@ -126,10 +125,10 @@ static PyObject *pysilc_client_connect_to_server(PyObject *self, PyObject *args,
         return NULL;
     }
 
-    /*SilcClientConnectionParams params;
-    memset(&params, 0, sizeof(params));*/
+    op = silc_client_connect_to_server(pyclient->silcobj,
+         &(pyclient->params), pyclient->keys->public, pyclient->keys->private,
+         host, port, pyclient->conncallback, NULL);
 
-    op = silc_client_connect_to_server(pyclient->silcobj, NULL, pyclient->keys->public, pyclient->keys->private, host, port, pyclient->conncallback, NULL);
     if (!op) {
         Py_INCREF(self);
         return PyInt_FromLong(-1);
