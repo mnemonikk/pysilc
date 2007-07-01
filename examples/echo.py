@@ -11,6 +11,10 @@ class EchoClient(silc.SilcClient):
           print message
           self.send_private_message(sender, message)
 
+      def running(self):
+          print "* Running"
+          client.connect_to_server("silc.example.com")
+
       def connected(self):
           print "* Connected"
           self.command_call("JOIN #cam")
@@ -37,8 +41,7 @@ class EchoClient(silc.SilcClient):
 if __name__ == "__main__":
    keys = silc.create_key_pair("silc.pub", "silc.prv", passphrase = "")
    client = EchoClient(keys, "echobot", "echobot", "Echo Bot")
-   client.connect_to_server("silc.example.com")
-   
+
    while True:
        try:
            client.run_one()

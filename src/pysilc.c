@@ -94,7 +94,7 @@ static int PySilcClient_Init(PyObject *self, PyObject *args, PyObject *kwds)
     
     silc_client_init(pyclient->silcobj, pyclient->silcobj->username,
                      pyclient->silcobj->hostname,
-                     pyclient->silcobj->realname, NULL, NULL);
+                     pyclient->silcobj->realname, _pysilc_client_running, pyclient->silcobj);
 
     return 0;
 }

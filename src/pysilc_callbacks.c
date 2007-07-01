@@ -46,6 +46,23 @@
 #define PYSILC_SILCBUFFER_TO_PYLIST(source, destination, Type) \
     do { } while (0);
 
+static void _pysilc_client_running(SilcClient client,
+                                   void *context)
+{
+    PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
+    PyObject *callback = NULL, *result = NULL;
+
+    callback = PyObject_GetAttrString((PyObject *)pyclient, "running");
+    if (!PyCallable_Check(callback))
+        goto cleanup;
+    if ((result = PyObject_CallObject(callback, NULL)) == 0)
+        PyErr_Print();
+
+cleanup:
+    Py_XDECREF(callback);
+    Py_XDECREF(result);
+}
+
 static void _pysilc_client_connect_callback(SilcClient client,
                                             SilcClientConnection conn,
                                             SilcClientConnectionStatus status,
