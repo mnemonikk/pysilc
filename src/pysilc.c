@@ -86,8 +86,8 @@ static int PySilcClient_Init(PyObject *self, PyObject *args, PyObject *kwds)
     /* martynas: TODO */
     /*if (nickname)
         pyclient->silcconn->nickname = strdup(nickname);*/
-    pyclient->silcconn->public_key   = keys->public;
-    pyclient->silcconn->private_key  = keys->private;
+    /*pyclient->silcconn->public_key   = keys->public;
+    pyclient->silcconn->Private_key  = keys->private;*/
     
     pyclient->keys = keys;
     Py_INCREF(keys);
@@ -119,7 +119,7 @@ static void PySilcClient_Del(PyObject *obj)
 
 static PyObject *pysilc_client_connect_to_server(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    int result;
+    SilcAsyncOperation op;
     unsigned int port = 706;
     char *host;
     static char *kwlist[] = {"host", "port", NULL};
@@ -133,13 +133,16 @@ static PyObject *pysilc_client_connect_to_server(PyObject *self, PyObject *args,
         return NULL;
     }
 
-    result = silc_client_connect_to_server(pyclient->silcobj, pyclient->silcconn, pyclient->silcconn->public_key, pyclient->silcconn->private_key, host, port, pyclient->conncallback, NULL);
-    if (result != -1) {
+    /*SilcClientConnectionParams params;
+    memset(&params, 0, sizeof(params));*/
+
+    op = silc_client_connect_to_server(pyclient->silcobj, NULL, pyclient->keys->public, pyclient->keys->private, host, port, pyclient->conncallback, NULL);
+    if (!op) {
         Py_INCREF(self);
-        return PyInt_FromLong(result);
+        return PyInt_FromLong(-1);
     }
 
-    return PyInt_FromLong(result);
+    return PyInt_FromLong(0);
 }
 
 static PyObject *pysilc_client_run_one(PyObject *self)
