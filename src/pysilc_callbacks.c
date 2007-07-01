@@ -236,17 +236,21 @@ typedef struct _PySilcClient_Callback_Join_Context
    char *channel_name;
    char *topic;
    char *hmac_name;
+   char *cipher;
    PyObject *pychannel;
    SilcUInt32 channel_mode;
-   SilcUInt32 user_limit; 
+   SilcUInt32 user_limit;
+   SilcHashTableList *user_list;
 } PySilcClient_Callback_Join_Context;
 
 static void _pysilc_client_callback_command_reply_join_finished(SilcClient client,
                                                                 SilcClientConnection conn,
-                                                                SilcClientEntry *user_list,
-                                                                SilcUInt32 user_count,
-                                                                void * context)
+                                                                void *context)
 {
+    SilcUInt32 user_count;
+    SilcClientEntry user;
+    SilcChannelUser user_channel;
+
     PyObject *result = NULL, *callback = NULL, *args = NULL;
     PyObject *pytopic = NULL, *pyhmac_name = NULL, *users = NULL;
     PySilcClient_Callback_Join_Context *join_context = NULL;
@@ -263,13 +267,16 @@ static void _pysilc_client_callback_command_reply_join_finished(SilcClient clien
 
     // extract all the users
     SilcUInt32 i = 0;
-    users = PyTuple_New(user_count);    
-    for (i = 0; i < user_count; i++) {
-        PyObject *u = PySilcUser_New(user_list[i]);
+    user_count = silc_hash_table_count(join_context->user_list->ht);
+    users = PyTuple_New(user_count);
+    i = 0;
+    while (silc_hash_table_get(join_context->user_list, (void *)&user, (void *)&user_channel)) {
+        PyObject *u = PySilcUser_New(user);
         PyTuple_SetItem(users, i, u);
+        i++;
         // TODO: we don't DECREF because PyTuple doesn't incr ref count.
     }
-    
+
     // prepare some possibly NULL values
     if (join_context->topic == NULL) {
         pytopic = Py_None;
@@ -605,14 +612,12 @@ static void _pysilc_client_callback_command_reply(SilcClient client,
                                                   SilcClientConnection conn,
                                                   SilcCommand command,
                                                   SilcStatus status,
-                                                  SilcStatus error, ...)
+                                                  SilcStatus error, va_list va)
 {
     PyObject *args = NULL, *result = NULL, *pyuser = NULL, *pychannel = NULL;
     PyObject *callback = NULL, *pyarg = NULL;
 
     PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
-    va_list va;
-    va_start(va, error);
     
     if (status != SILC_STATUS_OK) {
         // we encounter an error, return the command and error
@@ -802,14 +807,11 @@ static void _pysilc_client_callback_command_reply(SilcClient client,
         memset(context, 0, sizeof(PySilcClient_Callback_Join_Context));
         if (!context)
             break;
-            
+
         char *tmpstr = NULL;
-        int ignored;
-        void *dummy;
         SilcUInt32 client_count;
         SilcBuffer client_list;
-        
-        
+
         tmpstr = va_arg(va, char *);
         if (tmpstr)
             context->channel_name = strdup(tmpstr);
@@ -817,27 +819,19 @@ static void _pysilc_client_callback_command_reply(SilcClient client,
         context->pychannel = pychannel;
         Py_INCREF(pychannel);
         context->channel_mode = va_arg(va, SilcUInt32);
-        ignored = va_arg(va, int);  // ignored: ignore        
-        dummy = va_arg(va, void *); // ignored: key_payload
-        dummy = va_arg(va, void *); // NULL
-        dummy = va_arg(va, void *); // NULL
+        context->user_list = va_arg(va, SilcHashTableList *);
         tmpstr = va_arg(va, char *);
         if (tmpstr)
             context->topic = strdup(tmpstr);
         tmpstr = va_arg(va, char *);
+            context->cipher = strdup(tmpstr);
+        tmpstr = va_arg(va, char *);
         if (tmpstr)
             context->hmac_name = strdup(tmpstr);
-        client_count = va_arg(va, SilcUInt32);
-        client_list = va_arg(va, SilcBuffer);
-        dummy = va_arg(va, void *); // TODO: SilcBuffer client_mode_list
-        dummy = va_arg(va, void *); // TODO: SilcPublicKey founder_key
-        dummy = va_arg(va, void *); // TODO: SilcBuffer channel_pubkeys
         context->user_limit = va_arg(va, SilcUInt32);
-            
-        silc_client_get_clients_by_list(client, conn, 
-                                        client_count, client_list,
-                                        _pysilc_client_callback_command_reply_join_finished,
-                                        context);
+
+        _pysilc_client_callback_command_reply_join_finished(client, conn, context);
+
         break;
     }
     case SILC_COMMAND_MOTD:

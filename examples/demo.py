@@ -29,6 +29,9 @@ class SupySilcClient(silc.SilcClient):
     def _cache_channel(self, channel):
         self.channels[channel.channel_name] = channel
 
+    def running(self):
+        self.connect_to_server(sys.argv[1], 706)
+
     def connected(self):
         print 'SILC: Connected to server.'
         self.isconnected = True
@@ -209,7 +212,6 @@ class SupySilcClient(silc.SilcClient):
 if __name__ == "__main__":
     import sys
     c = SupySilcClient()
-    c.connect_to_server(sys.argv[1], 706)
     try:
         while True:
             c.run_one()        

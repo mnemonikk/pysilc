@@ -101,16 +101,9 @@ static int PySilcClient_Init(PyObject *self, PyObject *args, PyObject *kwds)
 
 static void PySilcClient_Del(PyObject *obj)
 {
-    printf("SilcClient.__del__\n");
     PySilcClient *pyclient = (PySilcClient *)obj;
     if (pyclient->silcobj) {
         silc_client_stop(pyclient->silcobj, NULL, NULL);
-        if (pyclient->silcobj->username)
-            free(pyclient->silcobj->username);          
-        if (pyclient->silcobj->realname)
-            free(pyclient->silcobj->realname);        
-        if (pyclient->silcobj->hostname)
-            free(pyclient->silcobj->hostname);        
         silc_client_free(pyclient->silcobj);
     }
     Py_XDECREF(pyclient->keys);
@@ -196,7 +189,7 @@ static PyObject *pysilc_client_send_channel_message(PyObject *self, PyObject *ar
 
     static char *kwlist[] = {"channel", "msg", "private_key", "flags", NULL};
     
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Oes#|OIb", kwlist, &channel, "utf-8", &message, &length, &private_key, &flags))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Oes#|OI", kwlist, &channel, "utf-8", &message, &length, &private_key, &flags))
         return NULL;
         
     if (!PyObject_IsInstance((PyObject *)channel, (PyObject *)&PySilcChannel_Type))
@@ -232,7 +225,7 @@ static PyObject *pysilc_client_send_private_message(PyObject *self, PyObject *ar
     
     static char *kwlist[] = {"user", "message", "flags", NULL};
     
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Oes#|Ib", kwlist, &user, "utf-8", &message, &length, &flags))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Oes#|I", kwlist, &user, "utf-8", &message, &length, &flags))
         return NULL;
         
     if (!PyObject_IsInstance((PyObject *)user, (PyObject *)&PySilcUser_Type))
