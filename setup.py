@@ -9,7 +9,7 @@ except:
 
 ext_modules = [
     Extension('silc', ['src/pysilc.c'],
-              libraries = ['silc', 'silcclient'],
+              libraries = ['iconv', 'silc', 'silcclient'],
               extra_compile_args = ['-g'],
               library_dirs = ['/usr/local/lib'],
               include_dirs = ['/usr/local/include/silc',
