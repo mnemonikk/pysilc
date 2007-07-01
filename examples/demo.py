@@ -30,6 +30,7 @@ class SupySilcClient(silc.SilcClient):
         self.channels[channel.channel_name] = channel
 
     def running(self):
+        print 'SILC: Running.'
         self.connect_to_server(sys.argv[1], 706)
 
     def connected(self):
