@@ -788,7 +788,6 @@ static void _pysilc_client_callback_command_reply(SilcClient client,
     case SILC_COMMAND_PING:
     {
         PYSILC_GET_CALLBACK_OR_BREAK("command_reply_ping");    
-        printf("command ping callback found\n")    ;
         if ((result = PyObject_CallObject(callback, args)) == 0)
             PyErr_Print();        
         break;
@@ -932,14 +931,14 @@ static void _pysilc_client_callback_command_reply(SilcClient client,
         PYSILC_NEW_CHANNEL_OR_BREAK(va_arg(va, SilcChannelEntry), pychannel);
         
         // get all users from this channel .. tedious
-        SilcUInt32 user_count = va_arg(va, SilcUInt32);
-        pyuser = PyTuple_New(user_count); // hijack pyuser so we get autocleanup
         int i = 0;
         SilcHashTableList hash_list;
         SilcClientEntry user, cached;
         SilcChannelUser user_channel;
         PyObject *u = NULL;
         SilcChannelEntry channel = ((PySilcChannel *)pychannel)->silcobj;
+        SilcUInt32 user_count = silc_hash_table_count(channel->user_list);
+        pyuser = PyTuple_New(user_count); // hijack pyuser so we get autocleanup
 
         printf("user: %d\n", user_count);
         

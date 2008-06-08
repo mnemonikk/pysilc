@@ -199,8 +199,9 @@ class SupySilcClient(silc.SilcClient):
         print 'SILC: Reply (Leave):', channel
         
     def command_reply_users(self, channel, users):
-        self._cache_user(user)
-        print 'SILC: Reply (Users):', type, user
+        for user in users:
+            self._cache_user(user)
+        print 'SILC: Reply (Users):', channel, users
         
     def command_reply_service(self, *args):
         pass # not implemented
