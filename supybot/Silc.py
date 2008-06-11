@@ -50,7 +50,6 @@ class SupySilcClient(silc.SilcClient):
         
         self.irc = irc
         self.parent = parent
-        self.isconnected = False
         self.last_ping = 0
         self.users = {}    # use this to lookup nick to SilcUser objects
         self.channels = {} # use this to lookup channels to SilcChannel objects
@@ -65,14 +64,19 @@ class SupySilcClient(silc.SilcClient):
         import getpass
         return getpass.getpass('Passphrase:')
 
+    def running(self):
+        drivers.log.info("SILC: Running.")
+        self.parent.running = True
+        self.parent.reconnect()
+
     def connected(self):
         drivers.log.info("SILC: Connected to server.")
-        self.isconnected = True
+        self.parent.connected = True
         self.irc.driver = self.parent
 
     def disconnected(self, msg):
         drivers.log.info('SILC: Disconnected from server.')
-        self.isconnected = False
+        self.parent.connected = False
         
     def command(self, success, code, command, status):
         drivers.log.info('SILC: Command: %s %s %s %s', success, code, command, status)
@@ -384,17 +388,11 @@ class SilcDriver(drivers.IrcDriver, drivers.ServersMixin):
         self.__parent = super(SilcDriver, self)
         self.__parent.__init__(irc)
         self.irc = irc
-        self.silc = SupySilcClient(irc, self)        
-        self.running = True
+        self.running = False
         self.connected = False
-        self.reconnect()
+        self.silc = SupySilcClient(irc, self)        
 
     def run(self):
-        if self.silc:
-            self.connected = self.silc.isconnected
-        else:
-            self.connected = False
-            
         try:
             self.silc.run_one()
             time.sleep(conf.supybot.drivers.poll())
@@ -413,7 +411,7 @@ class SilcDriver(drivers.IrcDriver, drivers.ServersMixin):
     def checkIrcForMsgs(self):
         # convert irc messages into silc command equivalents and send it off.
         
-        if self.silc.isconnected:
+        if self.connected:
             msg = self.irc.takeMsg()
             if msg:
                 drivers.log.info('IRC MSG: %s', repr(msg))
