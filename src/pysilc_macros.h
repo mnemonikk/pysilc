@@ -6,7 +6,7 @@
  * Copyright (c) 2007, Martynas Venckus <martynas@altroot.org>
  * All rights reserved.
  *
- * This program is free software; you can redistributed it and/or modify 
+ * This program is free software; you can redistributed it and/or modify
  * it under the terms of the BSD License. See LICENSE in the distribution
  * for details or http://www.liquidx.net/pysilc/.
  *

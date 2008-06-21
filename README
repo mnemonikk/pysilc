@@ -54,7 +54,7 @@ Callbacks Overview
 The majority of the work will be to write callbacks that react to
 messages the server sends to the client. These can be either
 asynchronous events such as channel messages, or responses to commands
-that are sent by the client. 
+that are sent by the client.
 
 Callbacks are callable members of the SilcClient class (or subclass)
 and their signature is on the SilcClient docstring. An example
@@ -91,7 +91,7 @@ class EchoClient(silc.SilcClient):
 
           print "* Joined channel %s" % name
           self.send_channel_message(channel, "Hello!")
-           
+
       # catch async notifications from the server
 
       def notify_join(self, user, channel):
@@ -110,7 +110,7 @@ if __name__ == "__main__":
               client.run_one()
          except KeyboardInterrupt:
               break
-   
+
 }}}
 
 

@@ -29,7 +29,7 @@ class EchoClient(silc.SilcClient):
 
           print "* Joined channel %s" % name
           self.send_channel_message(channel, "Hello!")
-           
+
       # catch async notifications from the server
 
       def notify_join(self, user, channel):

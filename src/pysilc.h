@@ -6,7 +6,7 @@
  * Copyright (c) 2007, Martynas Venckus <martynas@altroot.org>
  * All rights reserved.
  *
- * This program is free software; you can redistributed it and/or modify 
+ * This program is free software; you can redistributed it and/or modify
  * it under the terms of the BSD License. See LICENSE in the distribution
  * for details or http://www.liquidx.net/pysilc/.
  *
@@ -47,11 +47,11 @@ typedef struct {
 
 typedef struct {
     PyObject_HEAD
-    
+
     // members that are callable objects
     PyObject *say, *channel_message, *private_message,  *command;
     PyObject *connected, *disconnected;
-        
+
     PyObject *notify_none;
     PyObject *notify_invite;
     PyObject *notify_join;
@@ -95,14 +95,14 @@ typedef struct {
     PyObject *command_reply_service;
 
     PyObject *command_reply_failed; // custom handler
-    
+
     PySilcKeys *keys;
-    
-    // TODO: not used 
-    PyObject *get_auth_method, 
-        *verify_public_key, 
-        *ask_passphrase, 
-        *failure, 
+
+    // TODO: not used
+    PyObject *get_auth_method,
+        *verify_public_key,
+        *ask_passphrase,
+        *failure,
         *key_agreement,
         *ftp,
         *detach;
@@ -122,9 +122,9 @@ static PyObject *pysilc_load_key_pair(PyObject *mod, PyObject *args, PyObject *k
 
 static PyMethodDef pysilc_functions[] = {
     {
-        "create_key_pair", 
-        (PyCFunction)pysilc_create_key_pair, 
-        METH_VARARGS|METH_KEYWORDS, 
+        "create_key_pair",
+        (PyCFunction)pysilc_create_key_pair,
+        METH_VARARGS|METH_KEYWORDS,
         "create_key_pair(public_filename, private_filename,\n"
         "                identifier = None, passphrase = \"\"\n"
         "                pkcs_name = None, key_length = 2048)\n\n"
@@ -132,9 +132,9 @@ static PyMethodDef pysilc_functions[] = {
     },
 
     {
-        "load_key_pair", 
-        (PyCFunction)pysilc_load_key_pair, 
-        METH_VARARGS|METH_KEYWORDS, 
+        "load_key_pair",
+        (PyCFunction)pysilc_load_key_pair,
+        METH_VARARGS|METH_KEYWORDS,
         "load_key_pair(public_filename, private_filename, passphrase = \"\")"
         "\n\n"
         "Load a public and private key pair from files with an optional\n"
@@ -142,7 +142,7 @@ static PyMethodDef pysilc_functions[] = {
         "If passphrase is None, then it will be prompted by calling the\n"
         "ask_passphrase callback. If passphrase is an empty string\n"
         "(eg. \"\"), then an empty passphrase will be passed."
-    },    
+    },
 
     {NULL, NULL, 0, NULL},
 };
@@ -159,7 +159,6 @@ static int PySilcChannel_Compare(PyObject *self, PyObject *other);
 
 static PyMethodDef pysilc_channel_methods[] = {
     {NULL, NULL, 0, NULL},
-    
 };
 
 static PyMemberDef pysilc_channel_members[] = {
@@ -210,67 +209,67 @@ static PyObject *pysilc_client_remote_host(PyObject *self);
 static PyObject *pysilc_client_user(PyObject *self);
 
 static PyMethodDef pysilc_client_methods[] = {
-    { 
-        "connect_to_server", 
-        (PyCFunction)pysilc_client_connect_to_server, 
-        METH_VARARGS | METH_KEYWORDS, 
+    {
+        "connect_to_server",
+        (PyCFunction)pysilc_client_connect_to_server,
+        METH_VARARGS | METH_KEYWORDS,
         "connect_to_server(host, port = 706) -> int\n\n"
         "Connect to SILC server. Returns -1 on error."
     },
     {
-        "run_one", 
-        (PyCFunction)pysilc_client_run_one, 
-        METH_NOARGS, 
+        "run_one",
+        (PyCFunction)pysilc_client_run_one,
+        METH_NOARGS,
         "run_one()\n\n"
         "Run one iteration of the run loop."
     },
     {
-        "send_channel_message", 
-        (PyCFunction)pysilc_client_send_channel_message, 
-        METH_VARARGS | METH_KEYWORDS, 
+        "send_channel_message",
+        (PyCFunction)pysilc_client_send_channel_message,
+        METH_VARARGS | METH_KEYWORDS,
         "send_channel_message(channel, messsage, private_key = None,\n"
         "                     flags = 0)\n\n"
         "Send a message (Unicode string) to a channel (SilcChannel object).\n"
         "TODO: flags and private_key support not implemented.\n"
     },
     {
-        "send_private_message", 
-        (PyCFunction)pysilc_client_send_private_message, 
-        METH_VARARGS | METH_KEYWORDS, 
+        "send_private_message",
+        (PyCFunction)pysilc_client_send_private_message,
+        METH_VARARGS | METH_KEYWORDS,
         "send_private_message(user, messsage, private_key = None,\n"
         "                     flags = 0)\n\n"
         "Send a message (Unicode string) to a user (SilcUser object).\n"
         "TODO: flags and private_key support not implemented.\n"
     },
     {
-        "command_call", 
-        (PyCFunction)pysilc_client_command_call, 
-        METH_VARARGS | METH_KEYWORDS, 
+        "command_call",
+        (PyCFunction)pysilc_client_command_call,
+        METH_VARARGS | METH_KEYWORDS,
         "command_call(string) -> int\n\n"
         "Send a command call to the server and returns the result code of\n"
         "of the command."
     },
     {
-        "set_away_message", 
-        (PyCFunction)pysilc_client_set_away_message, 
-        METH_VARARGS, 
+        "set_away_message",
+        (PyCFunction)pysilc_client_set_away_message,
+        METH_VARARGS,
         "set_away_message(message = None)\n\n"
         "Set away message. If message is None, away status is removed."
-    },    
+    },
     {
-        "remote_host", 
-        (PyCFunction)pysilc_client_remote_host, 
-        METH_NOARGS, 
+        "remote_host",
+        (PyCFunction)pysilc_client_remote_host,
+        METH_NOARGS,
         "remote_host() -> string\n\n"
         "Get remote hostname."
     },
     {
-        "user", 
-        (PyCFunction)pysilc_client_user, 
-        METH_NOARGS, 
+        "user",
+        (PyCFunction)pysilc_client_user,
+        METH_NOARGS,
         "user() -> User\n\n"
         "Get current user."
-    },    
+    },
     {NULL, NULL, 0, NULL},
 };
 
@@ -281,7 +280,7 @@ static PyMemberDef pysilc_client_members[] = {
                           "Callback function when server status needs to be\n"
                           "conveyed to the user. 'message' is a string"),
     PYSILC_MEMBER_OBJ_DEF(PySilcClient, channel_message,
-                          "channel_message(sender, channel, flags, message)" 
+                          "channel_message(sender, channel, flags, message)"
                           "\n\n"
                           "Callback function when client receives a channel\n"
                           "message. 'sender' is type SilcUser,\n"
@@ -397,7 +396,7 @@ static PyMemberDef pysilc_client_members[] = {
 
     PYSILC_MEMBER_OBJ_DEF(PySilcClient, command_reply_failed,
                           "command_reply_failed(command, command_name, status"
-                          ", msg)"),    
+                          ", msg)"),
     {NULL, 0, 0, 0, NULL},
 };
 
@@ -433,7 +432,7 @@ static PyTypeObject PySilcClient_Type = {
     0, /* tp_call */
     0, /* tp_str */
     0, /* tp_getattro */
-    0, /* tp_setattro */    
+    0, /* tp_setattro */
     0, /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
     PYSILC_CLIENT_DOC, /* tp_doc */
@@ -483,7 +482,7 @@ static PyTypeObject PySilcChannel_Type = {
     0, /* tp_call */
     PySilcChannel_Str, /* tp_str */
     PySilcChannel_GetAttr, /* tp_getattro */
-    0, /* tp_setattro */    
+    0, /* tp_setattro */
     0, /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
     PYSILC_CHANNEL_DOC, /* tp_doc */
@@ -536,7 +535,7 @@ static PyTypeObject PySilcUser_Type = {
     0, /* tp_call */
     PySilcUser_Str, /* tp_str */
     PySilcUser_GetAttr, /* tp_getattro */
-    0, /* tp_setattro */    
+    0, /* tp_setattro */
     0, /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
     PYSILC_USER_DOC, /* tp_doc */
@@ -582,7 +581,7 @@ static PyTypeObject PySilcKeys_Type = {
     0, /* tp_call */
     0, /* tp_str */
     0, /* tp_getattro */
-    0, /* tp_setattro */    
+    0, /* tp_setattro */
     0, /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
     PYSILC_KEYS_DOC, /* tp_doc */

@@ -6,7 +6,7 @@
  * Copyright (c) 2007, Martynas Venckus <martynas@altroot.org>
  * All rights reserved.
  *
- * This program is free software; you can redistributed it and/or modify 
+ * This program is free software; you can redistributed it and/or modify
  * it under the terms of the BSD License. See LICENSE in the distribution
  * for details or http://www.liquidx.net/pysilc/.
  *
@@ -18,14 +18,14 @@
 #include "pysilc_user.c"
 #include "pysilc_callbacks.c"
 
-void initsilc() {    
+void initsilc() {
     PyObject *mod = Py_InitModule3("silc", pysilc_functions, pysilc_doc);
     silc_pkcs_register_default();
     silc_hash_register_default();
     silc_cipher_register_default();
     silc_hmac_register_default();
     PY_MOD_ADD_CLASS(mod, SilcClient);
-    PY_MOD_ADD_CLASS(mod, SilcChannel);    
+    PY_MOD_ADD_CLASS(mod, SilcChannel);
     PY_MOD_ADD_CLASS(mod, SilcUser);
     PyModule_AddIntConstant(mod, "SILC_ID_CLIENT", SILC_ID_CLIENT);
     PyModule_AddIntConstant(mod, "SILC_ID_CHANNEL", SILC_ID_CHANNEL);
@@ -54,21 +54,21 @@ static int PySilcClient_Init(PyObject *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"keys", "nickname", "username", "realname", "hostname", NULL};
 
     PySilcKeys *keys;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|ssss", kwlist, 
-                                     &keys, &nickname, &username, &realname, 
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|ssss", kwlist,
+                                     &keys, &nickname, &username, &realname,
                                      &hostname)) {
         return -1;
     }
-    
+
     pyclient->silcobj = silc_client_alloc(&(pyclient->callbacks), NULL, pyclient, silc_version_string);
     if (!pyclient->silcobj) {
         PyErr_SetString(PyExc_AssertionError, "Failed to Initialise Silc Client Object");
         return -1;
     }
-    
+
     if (!PyObject_TypeCheck(keys, &PySilcKeys_Type))
         return -1;
-        
+
     pyclient->silcconn = NULL;
 
     memset(&(pyclient->params), 0, sizeof(pyclient->params));
@@ -90,7 +90,7 @@ static int PySilcClient_Init(PyObject *self, PyObject *args, PyObject *kwds)
 
     pyclient->keys = keys;
     Py_INCREF(keys);
-    
+
     silc_client_init(pyclient->silcobj, pyclient->silcobj->username,
                      pyclient->silcobj->hostname,
                      pyclient->silcobj->realname, _pysilc_client_running,
@@ -140,7 +140,7 @@ static PyObject *pysilc_client_connect_to_server(PyObject *self, PyObject *args,
 
 static PyObject *pysilc_client_run_one(PyObject *self)
 {
-    PySilcClient *pyclient = (PySilcClient *)self;    
+    PySilcClient *pyclient = (PySilcClient *)self;
     if (!pyclient || !pyclient->silcobj) {
            PyErr_SetString(PyExc_RuntimeError, "SILC Client Not Initialised");
            return NULL;
@@ -151,23 +151,23 @@ static PyObject *pysilc_client_run_one(PyObject *self)
 
 static PyObject *pysilc_client_remote_host(PyObject *self)
 {
-    PySilcClient *pyclient = (PySilcClient *)self;    
+    PySilcClient *pyclient = (PySilcClient *)self;
     if (!pyclient || !pyclient->silcconn) {
            PyErr_SetString(PyExc_RuntimeError, "SILC Client Not Connected");
            return NULL;
     }
-    
+
     return PyString_FromString(pyclient->silcconn->remote_host);
 }
 
 static PyObject *pysilc_client_user(PyObject *self)
 {
-    PySilcClient *pyclient = (PySilcClient *)self;    
+    PySilcClient *pyclient = (PySilcClient *)self;
     if (!pyclient || !pyclient->silcconn) {
            PyErr_SetString(PyExc_RuntimeError, "SILC Client Not Connected");
            return NULL;
     }
-    
+
     PyObject *myself = PySilcUser_New(pyclient->silcconn->local_entry);
     if (!myself) {
         Py_RETURN_NONE;
@@ -185,29 +185,29 @@ static PyObject *pysilc_client_send_channel_message(PyObject *self, PyObject *ar
     PyObject *private_key = NULL; // TODO: ignored at the moment
     unsigned int defaultFlags = SILC_MESSAGE_FLAG_UTF8;
     unsigned int flags = 0;
-    PySilcClient *pyclient = (PySilcClient *)self;    
+    PySilcClient *pyclient = (PySilcClient *)self;
 
     static char *kwlist[] = {"channel", "msg", "private_key", "flags", NULL};
-    
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "Oes#|OI", kwlist, &channel, "utf-8", &message, &length, &private_key, &flags))
         return NULL;
-        
+
     if (!PyObject_IsInstance((PyObject *)channel, (PyObject *)&PySilcChannel_Type))
         return NULL;
-        
+
     if (!pyclient || !pyclient->silcobj) {
         PyErr_SetString(PyExc_RuntimeError, "SILC Client Not Initialised");
         return NULL;
      }
-        
-    result = silc_client_send_channel_message(pyclient->silcobj, 
-                                              pyclient->silcconn, 
-                                              channel->silcobj, 
+
+    result = silc_client_send_channel_message(pyclient->silcobj,
+                                              pyclient->silcconn,
+                                              channel->silcobj,
                                               NULL,
                                               flags | defaultFlags,
                                               NULL,
                                               message, length);
-    
+
     return PyInt_FromLong(result);
 }
 
@@ -220,30 +220,29 @@ static PyObject *pysilc_client_send_private_message(PyObject *self, PyObject *ar
     int result = 0;
     unsigned int defaultFlags = SILC_MESSAGE_FLAG_UTF8;
     unsigned int flags = 0;
-    PySilcClient *pyclient = (PySilcClient *)self;    
-    
-    
+    PySilcClient *pyclient = (PySilcClient *)self;
+
     static char *kwlist[] = {"user", "message", "flags", NULL};
-    
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "Oes#|I", kwlist, &user, "utf-8", &message, &length, &flags))
         return NULL;
-        
+
     if (!PyObject_IsInstance((PyObject *)user, (PyObject *)&PySilcUser_Type))
         return NULL;
-        
+
     if (!pyclient || !pyclient->silcobj) {
         PyErr_SetString(PyExc_RuntimeError, "SILC Client Not Initialised");
         return NULL;
      }
-        
-    result = silc_client_send_private_message(pyclient->silcobj, 
-                                              pyclient->silcconn, 
-                                              user->silcobj, 
+
+    result = silc_client_send_private_message(pyclient->silcobj,
+                                              pyclient->silcconn,
+                                              user->silcobj,
                                               flags | defaultFlags,
                                               NULL,
-                                              message, 
+                                              message,
                                               length);
-    
+
     return PyInt_FromLong(result);
 }
 
@@ -251,16 +250,16 @@ static PyObject *pysilc_client_command_call(PyObject *self, PyObject *args, PyOb
 {
     char *message;
     int result;
-    PySilcClient *pyclient = (PySilcClient *)self;    
-    
+    PySilcClient *pyclient = (PySilcClient *)self;
+
     if (!pyclient || !pyclient->silcobj) {
        PyErr_SetString(PyExc_RuntimeError, "SILC Client Not Initialised");
        return NULL;
     }
-    
+
     if (!PyArg_ParseTuple(args, "s", &message))
         return NULL;
-    
+
     result = silc_client_command_call(pyclient->silcobj, pyclient->silcconn, message);
     return PyInt_FromLong(result);
 }
@@ -271,29 +270,29 @@ static PyObject *pysilc_client_set_away_message(PyObject *self, PyObject *args)
     char *message;
     int length;
     PyObject *temp = NULL;
-    PySilcClient *pyclient = (PySilcClient *)self;    
-    
+    PySilcClient *pyclient = (PySilcClient *)self;
+
     if (!pyclient || !pyclient->silcobj) {
        PyErr_SetString(PyExc_RuntimeError, "SILC Client Not Initialised");
        return NULL;
     }
-    
+
     if (!PyArg_ParseTuple(args, "|O", &temp))
         return NULL;
-        
+
     if ((temp == Py_None) || (temp == NULL)) {
-        silc_client_set_away_message(pyclient->silcobj, pyclient->silcconn, NULL);    
+        silc_client_set_away_message(pyclient->silcobj, pyclient->silcconn, NULL);
         Py_RETURN_NONE;
     }
-    
+
     if (!PyArg_ParseTuple(args, "s#", &message, length))
         return NULL;
-    
+
     if (length < 1)
-        silc_client_set_away_message(pyclient->silcobj, pyclient->silcconn, NULL);    
+        silc_client_set_away_message(pyclient->silcobj, pyclient->silcconn, NULL);
     else
         silc_client_set_away_message(pyclient->silcobj, pyclient->silcconn, message);
-        
+
     Py_RETURN_NONE;
 }
 
@@ -304,18 +303,18 @@ static PyObject *pysilc_create_key_pair(PyObject *mod, PyObject *args, PyObject 
     char *pub_filename , *prv_filename;
     char *passphrase = NULL;
     char *pub_identifier = NULL;
-    
+
     SilcUInt32      key_length = 2048;
     SilcPublicKey   public_key;
     SilcPrivateKey  private_key;
-    
+
     static char *kwlist[] = {"public_filename", "private_filename", "identifier", "passphrase", "pkcs_name", "key_length", NULL};
-    
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "ss|sOsi", kwlist,
             &pub_filename, &prv_filename, &pub_identifier,
 			&passphrase_obj, &pkcs_name, &key_length))
         return NULL;
-    
+
 	if (passphrase_obj == Py_None) {
 		passphrase = NULL;
 	}
@@ -325,16 +324,16 @@ static PyObject *pysilc_create_key_pair(PyObject *mod, PyObject *args, PyObject 
 	else {
 		PyErr_SetString(PyExc_TypeError, "passphrase should either be None or String Type");
 		return NULL;
-	}	
-	
-    bool result = silc_create_key_pair(pkcs_name, key_length, pub_filename, 
+	}
+
+    bool result = silc_create_key_pair(pkcs_name, key_length, pub_filename,
                                        prv_filename, pub_identifier, passphrase,
                                        &public_key, &private_key, 0);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to generate keys.");
         return NULL;
     }
-        
+
     return PySilcKeys_New(public_key, private_key);
 }
 
@@ -343,16 +342,16 @@ static PyObject *pysilc_load_key_pair(PyObject *mod, PyObject *args, PyObject *k
 	PyObject *passphrase_obj = Py_None;
 	char *passphrase = NULL;
     char *pub_filename , *prv_filename;
-	
+
     SilcPublicKey   public_key;
     SilcPrivateKey  private_key;
-    
+
     static char *kwlist[] = {"public_filename", "private_filename", "passphrase", NULL};
-    
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "ss|O", kwlist,
             &pub_filename, &prv_filename, &passphrase_obj))
         return NULL;
-	
+
 	if (passphrase_obj == Py_None) {
 		passphrase = NULL;
 	}
@@ -373,6 +372,6 @@ static PyObject *pysilc_load_key_pair(PyObject *mod, PyObject *args, PyObject *k
 		PyErr_SetString(PyExc_RuntimeError, "Unable to load keys.");
 		return NULL;
     }
-        
+
     return PySilcKeys_New(public_key, private_key);
 }
