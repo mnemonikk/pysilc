@@ -187,13 +187,13 @@ static PyMemberDef pysilc_user_members[] = {
 static PyObject *PySilcKeys_New(SilcPublicKey public, SilcPrivateKey private);
 static void PySilcKeys_Del(PyObject *object);
 
-static PyMethodDef pysilc_keys_methods[] = {
+/*static PyMethodDef pysilc_keys_methods[] = {
     {NULL, NULL, 0, NULL},
-};
+};*/
 
-static PyMemberDef pysilc_keys_members[] = {
+/*static PyMemberDef pysilc_keys_members[] = {
     {NULL, 0, 0, 0, NULL},
-};
+};*/
 
 /*  ---------------- pysilc client ------------- */
 

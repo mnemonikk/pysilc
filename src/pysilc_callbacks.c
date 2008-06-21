@@ -437,8 +437,8 @@ static void _pysilc_client_callback_notify(SilcClient client,
         char *cipher_name = va_arg(va, char *);
         char *hmac_name = va_arg(va, char *);
         char *passphrase = va_arg(va, char *);
-        SilcPublicKey founder_key = va_arg(va, SilcPublicKey);
-        SilcBuffer channel_pubkeys = va_arg(va, SilcBuffer);
+        va_arg(va, void *); // TODO: founder_key
+        va_arg(va, void *); // TODO: channel_pubkeys
         PYSILC_NEW_CHANNEL_OR_BREAK(va_arg(va, SilcChannelEntry), pychannel);
         
         switch (idtype) { 
@@ -588,7 +588,7 @@ static void _pysilc_client_callback_notify(SilcClient client,
         char *new_nick = va_arg(va, char *);
         SilcUInt32 user_mode = va_arg(va, SilcUInt32);
         SilcNotifyType notification = va_arg(va, int);
-        void *dummy = va_arg(va, SilcPublicKey); // TODO
+        va_arg(va, void *); // TODO: founder_key
         if ((args = Py_BuildValue("(OsiiO)", pyuser, new_nick, user_mode, notification, Py_None)) == NULL)
             break;
         if ((result = PyObject_CallObject(callback, args)) == 0)
@@ -596,7 +596,7 @@ static void _pysilc_client_callback_notify(SilcClient client,
         break;
     }
 
- cleanup:
+    // TODO: don't leak if not reached...
     va_end(va); 
     Py_XDECREF(callback);
     Py_XDECREF(pyuser);
@@ -616,7 +616,7 @@ static void _pysilc_client_callback_command_reply(SilcClient client,
                                                   SilcStatus error, va_list va)
 {
     PyObject *args = NULL, *result = NULL, *pyuser = NULL, *pychannel = NULL;
-    PyObject *callback = NULL, *pyarg = NULL;
+    PyObject *callback = NULL;
 
     PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
     
@@ -681,7 +681,7 @@ static void _pysilc_client_callback_command_reply(SilcClient client,
     case SILC_COMMAND_IDENTIFY:
     {
         PYSILC_GET_CALLBACK_OR_BREAK("command_reply_identify");        
-        void *entry = va_arg(va, void *); // TODO: what is this?
+        va_arg(va, void *); // TODO: entry
         char *name = va_arg(va, char *);
         char *info = va_arg(va, char *);
         if ((args = Py_BuildValue("(ss)", name, info)) == NULL)
@@ -695,7 +695,7 @@ static void _pysilc_client_callback_command_reply(SilcClient client,
         PYSILC_GET_CALLBACK_OR_BREAK("command_reply_nick");        
         PYSILC_NEW_USER_OR_BREAK(va_arg(va, SilcClientEntry), pyuser);
         char *nickname = va_arg(va, char *);
-        SilcClientID *info = va_arg(va, SilcClientID *); // TODO: pass this?
+        va_arg(va, void *); // TODO: info
         if ((args = Py_BuildValue("(Oss)", pyuser, nickname, "")) == NULL)
             break;
         if ((result = PyObject_CallObject(callback, args)) == 0)
@@ -809,8 +809,6 @@ static void _pysilc_client_callback_command_reply(SilcClient client,
             break;
 
         char *tmpstr = NULL;
-        SilcUInt32 client_count;
-        SilcBuffer client_list;
 
         tmpstr = va_arg(va, char *);
         if (tmpstr)
@@ -888,7 +886,7 @@ static void _pysilc_client_callback_command_reply(SilcClient client,
     {
         PYSILC_GET_CALLBACK_OR_BREAK("command_reply_ban");
          PYSILC_NEW_CHANNEL_OR_BREAK(va_arg(va, SilcChannelEntry), pychannel);
-         void *dummy = va_arg(va, SilcBuffer); //TODO: ban_list
+         va_arg(va, void *); // TODO: ban_list
          if ((args = Py_BuildValue("(OO)", pychannel, Py_None)) == NULL)
              break;
          if ((result = PyObject_CallObject(callback, args)) == 0)
@@ -972,7 +970,8 @@ static void _pysilc_client_callback_command_reply(SilcClient client,
         // TODO: implement me
         break;
     }
-cleanup:
+
+    // TODO: don't leak if not reached...
     va_end(va);
     Py_XDECREF(callback);
     Py_XDECREF(result);
