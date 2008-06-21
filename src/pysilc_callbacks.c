@@ -1032,7 +1032,7 @@ static void _pysilc_client_callback_ask_passphrase(SilcClient client,
     PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
     PyObject *callback = NULL, *result = NULL;
     char *passphrase;
-	int length;
+    Py_ssize_t length;
 
     callback = PyObject_GetAttrString((PyObject *)pyclient, "ask_passphrase");
 
