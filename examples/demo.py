@@ -75,17 +75,17 @@ class SupySilcClient(silc.SilcClient):
         self._cache_channel(channel)
         print 'SILC: Notify (Leave): %s %s' % (leaver, channel)
 
-    def notify_signoff(self, user, msg):
+    def notify_signoff(self, user, msg, channel):
         self._cache_user(user)
-        print 'SILC: Notify (Signoff):', user, msg
+        print 'SILC: Notify (Signoff):', user, msg, channel
 
     def notify_topic_set(self, type, changedby, channel, topic):
         self._cache_user(changedby)
         self._cache_channel(channel)
         print 'SILC: Notify (Topic Set):', channel, topic
 
-    def notify_nick_change(self, olduser, newuser):
-        self._cache_user(newuser)
+    def notify_nick_change(self, user, olduser, newuser):
+        self._cache_user(user)
         print 'SILC: Notify (Nick Change):', olduser, newuser
 
     def notify_cmode_change(self, *args):

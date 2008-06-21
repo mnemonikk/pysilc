@@ -379,10 +379,11 @@ static void _pysilc_client_callback_notify(SilcClient client,
     case SILC_NOTIFY_TYPE_SIGNOFF:
         PYSILC_GET_CALLBACK_OR_BREAK("notify_signoff");
         PYSILC_NEW_USER_OR_BREAK(va_arg(va, SilcClientEntry), pyuser);
+        PYSILC_NEW_CHANNEL_OR_BREAK(va_arg(va, SilcChannelEntry), pychannel);
         char *msg = va_arg(va, char *);
         if (!msg)
             msg = "";
-        if ((args = Py_BuildValue("(Os)", pyuser, msg)) == NULL)
+        if ((args = Py_BuildValue("(OsO)", pyuser, msg, pychannel)) == NULL)
             break;
         if ((result = PyObject_CallObject(callback, args)) == 0)
             PyErr_Print();
@@ -422,8 +423,10 @@ static void _pysilc_client_callback_notify(SilcClient client,
     case SILC_NOTIFY_TYPE_NICK_CHANGE:
         PYSILC_GET_CALLBACK_OR_BREAK("notify_nick_change");
         PYSILC_NEW_USER_OR_BREAK(va_arg(va, SilcClientEntry), pyuser);
-        PYSILC_NEW_USER_OR_BREAK(va_arg(va, SilcClientEntry), pyarg);
-        if ((args = Py_BuildValue("(OO)", pyuser, pyarg)) == NULL)
+        char *old_nickname = va_arg(va, char *);
+        char *new_nickname = va_arg(va, char *);
+        if ((args = Py_BuildValue("(Oss)", pyuser, old_nickname,
+            new_nickname)) == NULL)
             break;
         if ((result = PyObject_CallObject(callback, args)) == 0)
             PyErr_Print();

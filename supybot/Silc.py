@@ -135,12 +135,12 @@ class SupySilcClient(silc.SilcClient):
         if ircmsg: self.irc.feedMsg(ircmsg)
 
 
-    def notify_signoff(self, user):
+    def notify_signoff(self, user, msg, channel):
         self._cache_user(user)
         drivers.log.info('SILC: Notify (Signoff): %s', user)
 
-        ircemu = ':%s!n=%s@%s QUIT :' % (leaver.nickname, leaver.username,
-                                           leaver.hostname)
+        ircemu = ':%s!n=%s@%s QUIT :' % (user.nickname, user.username,
+                                           user.hostname)
         ircmsg = drivers.parseMsg(ircemu)
         if ircmsg: self.irc.feedMsg(ircmsg)
 
@@ -160,12 +160,11 @@ class SupySilcClient(silc.SilcClient):
             ircmsg = drivers.parseMsg(ircemu)
             if ircmsg: self.irc.feedMsg(ircmsg)
 
-    def notify_nick_change(self, olduser, newuser):
-        self._cache_user(newuser)
+    def notify_nick_change(self, user, olduser, newuser):
+        self._cache_user(user)
         drivers.log.info('SILC: Notify (Nick Change):', olduser, newuser)
         ircemu = ':%s!n=%s@%s NICK %s' % \
-                 (olduser.nickname, olduser.username, olduser.hostname,
-                  newuser.nickname)
+                 (olduser, user.username, user.hostname, newuser)
         ircmsg = drivers.parseMsg(ircemu)
         if ircmsg: self.irc.feedMsg(ircmsg)
 
