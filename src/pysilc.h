@@ -3,6 +3,7 @@
  * PySilc - Python SILC Toolkit Bindings
  *
  * Copyright (c) 2006, Alastair Tse <alastair@liquidx.net>
+ * Copyright (c) 2007, Martynas Venckus <martynas@altroot.org>
  * All rights reserved.
  *
  * This program is free software; you can redistributed it and/or modify 
