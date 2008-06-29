@@ -24,7 +24,7 @@ ext_modules = [
 ]
 
 setup(name = 'pysilc',
-      version = '0.4',
+      version = '0.5',
       description = 'Python Binding for SILC Toolkit',
       author = 'Alastair Tse',
       author_email = 'alastair@tse.id.au',

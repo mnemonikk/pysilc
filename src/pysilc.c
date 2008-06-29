@@ -285,7 +285,7 @@ static PyObject *pysilc_client_set_away_message(PyObject *self, PyObject *args)
         Py_RETURN_NONE;
     }
 
-    if (!PyArg_ParseTuple(args, "s#", &message, length))
+    if (!PyArg_ParseTuple(args, "s#", &message, &length))
         return NULL;
 
     if (length < 1)
