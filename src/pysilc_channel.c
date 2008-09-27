@@ -16,6 +16,8 @@
 
 static PyObject *PySilcChannel_New(SilcChannelEntry channel)
 {
+    if (!channel)
+        return NULL;
     PySilcChannel *pychannel = (PySilcChannel *)PyObject_New(PySilcChannel, &PySilcChannel_Type);
     if (!pychannel)
         return NULL;

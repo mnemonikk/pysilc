@@ -35,8 +35,6 @@
     break;
 
 #define PYSILC_NEW_CHANNEL_OR_BREAK(source, destination)\
-    if (!source) \
-        break; \
     destination = PySilcChannel_New(source);\
     if (!destination)\
         break;
