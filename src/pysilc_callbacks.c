@@ -35,6 +35,8 @@
     break;
 
 #define PYSILC_NEW_CHANNEL_OR_BREAK(source, destination)\
+    if (!source) \
+        break; \
     destination = PySilcChannel_New(source);\
     if (!destination)\
         break;
@@ -825,6 +827,7 @@ static void _pysilc_client_callback_command_reply(SilcClient client,
         if (tmpstr)
             context->topic = strdup(tmpstr);
         tmpstr = va_arg(va, char *);
+        if (tmpstr)
             context->cipher = strdup(tmpstr);
         tmpstr = va_arg(va, char *);
         if (tmpstr)
@@ -1032,7 +1035,7 @@ static void _pysilc_client_callback_ask_passphrase(SilcClient client,
     PYSILC_GET_CLIENT_OR_DIE(client, pyclient);
     PyObject *callback = NULL, *result = NULL;
     char *passphrase;
-    Py_ssize_t length;
+    ssize_t length;
 
     callback = PyObject_GetAttrString((PyObject *)pyclient, "ask_passphrase");
 
