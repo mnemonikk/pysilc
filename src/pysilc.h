@@ -207,6 +207,7 @@ static PyObject *pysilc_client_set_away_message(PyObject *self, PyObject *args);
 static PyObject *pysilc_client_run_one(PyObject *self);
 static PyObject *pysilc_client_remote_host(PyObject *self);
 static PyObject *pysilc_client_user(PyObject *self);
+static PyObject *pysilc_add_channel_private_key(PyObject *self, PyObject *args);
 
 static PyMethodDef pysilc_client_methods[] = {
     {
@@ -269,6 +270,14 @@ static PyMethodDef pysilc_client_methods[] = {
         METH_NOARGS,
         "user() -> User\n\n"
         "Get current user."
+    },
+    {
+        "add_channel_private_key",
+        (PyCFunction)pysilc_add_channel_private_key,
+        METH_VARARGS,
+        "add_channel_private_key(channel, name, key)"
+        "\n\n"
+        "Sets a channel key for the given channel.\n"
     },
     {NULL, NULL, 0, NULL},
 };

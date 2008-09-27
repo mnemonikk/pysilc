@@ -375,3 +375,28 @@ static PyObject *pysilc_load_key_pair(PyObject *mod, PyObject *args, PyObject *k
 
     return PySilcKeys_New(public_key, private_key);
 }
+
+static PyObject *pysilc_add_channel_private_key(PyObject *self, PyObject *args) {
+  PySilcClient *pyclient = (PySilcClient *)self;
+  PySilcChannel *channel;
+  const char *name;
+  unsigned char *key;
+  SilcUInt32 key_len;
+  SilcChannelPrivateKey *ret_key = NULL;
+  SilcBool result;
+    
+  if (!PyArg_ParseTuple(args, "Oss#", &channel, &name, &key, (int) &key_len))
+    return NULL;
+  if (!PyObject_IsInstance((PyObject *)channel, (PyObject *)&PySilcChannel_Type))
+    return NULL;
+  result = silc_client_add_channel_private_key(pyclient->silcobj,
+                                               pyclient->silcconn,
+                                               channel->silcobj,
+                                               name,
+                                               NULL,
+                                               NULL,
+                                               key,
+                                               key_len,
+                                               ret_key);
+  return Py_BuildValue("B", result);
+}
